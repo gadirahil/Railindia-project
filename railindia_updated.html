@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RailIndia — Smart Railway Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0a1628;--navy2:#0f2040;--blue:#1a4a8a;--accent:#f4a01c;--accent2:#e85d04;
+  --green:#16a34a;--red:#dc2626;--light:#f8f6f0;--white:#ffffff;
+  --text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;
+  --card:#ffffff;--surface:#f1f5f9;
+}
+body{font-family:'Sora',sans-serif;background:var(--light);color:var(--text);min-height:100vh}
+
+/* NAV */
+nav{background:var(--navy);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3)}
+.nav-logo{display:flex;align-items:center;gap:10px;padding:1rem 0;text-decoration:none}
+.logo-icon{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.nav-logo span{font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;letter-spacing:0.5px}
+.nav-logo em{color:var(--accent);font-style:normal}
+.nav-links{display:flex;gap:0.5rem;align-items:center}
+.nav-links a{color:rgba(255,255,255,0.75);text-decoration:none;padding:0.5rem 1rem;border-radius:6px;font-size:0.85rem;font-weight:500;transition:all 0.2s}
+.nav-links a:hover,.nav-links a.active{color:#fff;background:rgba(255,255,255,0.1)}
+.nav-links a.active{color:var(--accent)}
+.nav-actions{display:flex;gap:0.5rem;align-items:center}
+.btn-login{background:transparent;border:1.5px solid rgba(255,255,255,0.3);color:#fff;padding:0.45rem 1.2rem;border-radius:6px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:500;transition:all 0.2s}
+.btn-login:hover{border-color:var(--accent);color:var(--accent)}
+.btn-register{background:var(--accent);border:none;color:var(--navy);padding:0.45rem 1.2rem;border-radius:6px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:700;transition:all 0.2s}
+.btn-register:hover{background:#e09010;transform:translateY(-1px)}
+.user-badge{display:none;align-items:center;gap:8px;color:#fff}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;color:var(--navy)}
+
+/* PAGES */
+.page{display:none;min-height:calc(100vh - 64px)}
+.page.active{display:block}
+
+/* ====== HOME ====== */
+.hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 50%,#0d2d5e 100%);padding:5rem 2rem 4rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.hero-tag{display:inline-block;background:rgba(244,160,28,0.2);border:1px solid rgba(244,160,28,0.4);color:var(--accent);padding:0.35rem 1rem;border-radius:50px;font-size:0.78rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:1.5rem}
+.hero h1{font-family:'Playfair Display',serif;font-size:3.2rem;color:#fff;line-height:1.15;margin-bottom:1rem}
+.hero h1 span{color:var(--accent)}
+.hero p{color:rgba(255,255,255,0.7);font-size:1.05rem;max-width:520px;margin:0 auto 2.5rem;line-height:1.7}
+
+/* SEARCH BOX */
+.search-box{background:#fff;border-radius:16px;padding:2rem;max-width:820px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;z-index:1}
+.search-tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;background:var(--surface);padding:4px;border-radius:8px}
+.search-tab{flex:1;padding:0.5rem;border:none;background:transparent;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:600;color:var(--muted);border-radius:6px;transition:all 0.2s}
+.search-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.search-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:1rem;align-items:end}
+.form-group{display:flex;flex-direction:column;gap:0.4rem}
+.form-group label{font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select{border:1.5px solid var(--border);border-radius:8px;padding:0.7rem 1rem;font-family:'Sora',sans-serif;font-size:0.9rem;color:var(--text);outline:none;transition:border 0.2s;background:#fff}
+.form-group input:focus,.form-group select:focus{border-color:var(--blue)}
+.btn-search{background:var(--accent);border:none;color:var(--navy);padding:0.8rem 1.8rem;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:700;transition:all 0.2s;white-space:nowrap}
+.btn-search:hover{background:#e09010;transform:translateY(-1px)}
+
+/* STATS */
+.stats-bar{background:var(--navy);padding:1.5rem 2rem}
+.stats-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;text-align:center}
+.stat-item span{display:block}
+.stat-num{font-size:1.6rem;font-weight:700;color:var(--accent)}
+.stat-label{font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:2px}
+
+/* FEATURES */
+.section{padding:4rem 2rem;max-width:1100px;margin:0 auto}
+.section-head{text-align:center;margin-bottom:3rem}
+.section-head h2{font-family:'Playfair Display',serif;font-size:2rem;color:var(--navy);margin-bottom:0.5rem}
+.section-head p{color:var(--muted);font-size:0.95rem}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.feature-card{background:#fff;border-radius:12px;padding:1.8rem;border:1px solid var(--border);cursor:pointer;transition:all 0.25s;text-align:center}
+.feature-card:hover{box-shadow:0 8px 30px rgba(10,22,40,0.12);transform:translateY(-3px);border-color:var(--blue)}
+.feature-icon{width:56px;height:56px;border-radius:12px;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+.feature-card h3{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:0.5rem}
+.feature-card p{font-size:0.83rem;color:var(--muted);line-height:1.6}
+
+/* ====== LOGIN / REGISTER ====== */
+.auth-page{min-height:calc(100vh - 64px);background:linear-gradient(135deg,#f0f4ff 0%,#e8f0fe 100%);display:flex;align-items:center;justify-content:center;padding:2rem}
+.auth-card{background:#fff;border-radius:20px;padding:2.5rem;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(10,22,40,0.12)}
+.auth-card h2{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--navy);margin-bottom:0.3rem}
+.auth-card p{color:var(--muted);font-size:0.88rem;margin-bottom:2rem}
+.auth-tabs{display:flex;background:var(--surface);padding:4px;border-radius:8px;margin-bottom:1.5rem}
+.auth-tab{flex:1;padding:0.55rem;border:none;background:transparent;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:600;color:var(--muted);border-radius:6px;transition:all 0.2s}
+.auth-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.input-group{margin-bottom:1rem}
+.input-group label{display:block;font-size:0.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem}
+.input-group input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:0.75rem 1rem;font-family:'Sora',sans-serif;font-size:0.9rem;outline:none;transition:border 0.2s}
+.input-group input:focus{border-color:var(--blue)}
+.btn-primary{width:100%;background:var(--navy);color:#fff;border:none;padding:0.9rem;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:700;margin-top:0.5rem;transition:all 0.2s}
+.btn-primary:hover{background:var(--blue);transform:translateY(-1px)}
+.auth-footer{text-align:center;margin-top:1.5rem;font-size:0.83rem;color:var(--muted)}
+.auth-footer a{color:var(--blue);text-decoration:none;font-weight:600}
+.divider{text-align:center;margin:1rem 0;position:relative}
+.divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)}
+.divider span{background:#fff;padding:0 0.75rem;color:var(--muted);font-size:0.8rem;position:relative}
+.social-login{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.btn-social{border:1.5px solid var(--border);background:#fff;padding:0.65rem;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:600;color:var(--text);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-social:hover{border-color:var(--blue);background:var(--surface)}
+
+/* ====== TICKET BOOKING ====== */
+.booking-page{background:var(--light);padding:2rem}
+.page-header{text-align:center;margin-bottom:2.5rem}
+.page-header h2{font-family:'Playfair Display',serif;font-size:2rem;color:var(--navy)}
+.page-header p{color:var(--muted);font-size:0.9rem;margin-top:0.3rem}
+.booking-layout{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 2fr;gap:1.5rem}
+.booking-search-panel{background:#fff;border-radius:14px;padding:1.5rem;border:1px solid var(--border);height:fit-content}
+.booking-search-panel h3{font-size:0.9rem;font-weight:700;color:var(--navy);margin-bottom:1.2rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)}
+.results-panel{display:flex;flex-direction:column;gap:1rem}
+.train-card{background:#fff;border-radius:14px;padding:1.5rem;border:1px solid var(--border);transition:all 0.2s}
+.train-card:hover{box-shadow:0 6px 24px rgba(10,22,40,0.1);border-color:#94b4e0}
+.train-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
+.train-name{font-weight:700;color:var(--navy);font-size:0.95rem}
+.train-no{font-size:0.75rem;color:var(--muted);margin-top:2px}
+.train-badge{display:inline-flex;gap:0.4rem}
+.badge{padding:0.2rem 0.6rem;border-radius:50px;font-size:0.7rem;font-weight:600}
+.badge-daily{background:#e0f2fe;color:#0277bd}
+.badge-superfast{background:#f3e8ff;color:#6d28d9}
+.badge-rajdhani{background:#fff3e0;color:#e65100}
+.train-route{display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem}
+.route-time{text-align:center}
+.route-time .time{font-size:1.3rem;font-weight:700;color:var(--navy)}
+.route-time .station{font-size:0.72rem;color:var(--muted);margin-top:1px}
+.route-line{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.route-line .duration{font-size:0.72rem;color:var(--muted);font-weight:600}
+.route-line .line{width:100%;height:2px;background:var(--border);position:relative}
+.route-line .line::before,.route-line .line::after{content:'';position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:var(--blue);transform:translateY(-50%)}
+.route-line .line::before{left:0}
+.route-line .line::after{right:0}
+.train-classes{display:flex;gap:0.75rem}
+.class-pill{padding:0.45rem 0.85rem;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;transition:all 0.2s;text-align:center}
+.class-pill:hover{border-color:var(--blue)}
+.class-pill.selected{border-color:var(--blue);background:#e8f0fe}
+.class-pill .cls{font-size:0.78rem;font-weight:700;color:var(--navy)}
+.class-pill .avail{font-size:0.68rem;color:var(--green);margin:2px 0}
+.class-pill .price{font-size:0.85rem;font-weight:700;color:var(--blue)}
+.class-pill.wl .avail{color:var(--red)}
+.btn-book{background:var(--accent);border:none;color:var(--navy);padding:0.65rem 1.5rem;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:700;margin-left:auto;display:block;margin-top:0.75rem;transition:all 0.2s}
+.btn-book:hover{background:#e09010}
+
+/* BOOKING MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:20px;padding:2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.modal-header h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--navy)}
+.modal-close{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)}
+.passenger-row{background:var(--surface);border-radius:10px;padding:1rem;margin-bottom:0.75rem}
+.passenger-row h4{font-size:0.82rem;font-weight:700;color:var(--navy);margin-bottom:0.75rem}
+.inline-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:0.75rem}
+.modal-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)}
+.total-label{font-size:0.85rem;color:var(--muted)}
+.total-amount{font-size:1.4rem;font-weight:700;color:var(--navy)}
+.btn-confirm{background:var(--navy);color:#fff;border:none;padding:0.85rem 2rem;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:700;transition:all 0.2s}
+.btn-confirm:hover{background:var(--blue)}
+
+/* SUCCESS TICKET */
+.ticket-success{background:linear-gradient(135deg,#e8f5e9,#f0f9ff);border-radius:14px;padding:2rem;text-align:center;display:none}
+.ticket-success.show{display:block}
+.ticket-success .checkmark{font-size:3rem;margin-bottom:1rem}
+.ticket-success h3{font-size:1.2rem;font-weight:700;color:var(--green);margin-bottom:0.5rem}
+.pnr-display{background:#fff;border-radius:10px;padding:1rem;margin:1rem 0;border:2px dashed var(--border)}
+.pnr-display .pnr-num{font-size:1.6rem;font-weight:700;color:var(--navy);letter-spacing:3px}
+
+/* ====== TRACKING ====== */
+.tracking-page{background:var(--light);padding:2rem}
+.tracking-layout{max-width:900px;margin:0 auto}
+.track-search{background:#fff;border-radius:14px;padding:1.5rem;border:1px solid var(--border);margin-bottom:1.5rem}
+.track-input-row{display:grid;grid-template-columns:1fr 1fr auto;gap:1rem;align-items:end}
+.track-result{background:#fff;border-radius:14px;padding:1.5rem;border:1px solid var(--border);display:none}
+.track-result.show{display:block}
+.track-info{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+.train-info-big h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--navy)}
+.train-info-big p{color:var(--muted);font-size:0.85rem;margin-top:3px}
+.status-chip{padding:0.45rem 1.1rem;border-radius:50px;font-size:0.8rem;font-weight:700}
+.status-ontime{background:#d1fae5;color:#065f46}
+.status-late{background:#fee2e2;color:#991b1b}
+.status-delayed{background:#fef3c7;color:#92400e}
+.route-progress{position:relative;padding-left:2rem}
+.stop-item{position:relative;padding:0 0 1.5rem 1rem;border-left:2px solid var(--border)}
+.stop-item:last-child{border-left:2px solid transparent;padding-bottom:0}
+.stop-item.passed{border-left-color:var(--blue)}
+.stop-item.current{border-left-color:var(--accent)}
+.stop-dot{width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--border);position:absolute;left:-8px;top:3px}
+.stop-item.passed .stop-dot{background:var(--blue);border-color:var(--blue)}
+.stop-item.current .stop-dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px rgba(244,160,28,0.2)}
+.stop-name{font-weight:700;color:var(--navy);font-size:0.9rem}
+.stop-time{font-size:0.78rem;color:var(--muted);margin-top:2px}
+.stop-status-badge{display:inline-block;font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:4px;margin-top:3px}
+.sst-dep{background:#e0f2fe;color:#0277bd}
+.sst-current{background:#fff3e0;color:#e65100}
+.sst-next{background:#f3f4f6;color:#374151}
+
+/* MAP SECTION */
+.map-placeholder{background:linear-gradient(135deg,#dbeafe,#e0f2fe);border-radius:12px;height:200px;display:flex;align-items:center;justify-content:center;margin-top:1.5rem;position:relative;overflow:hidden}
+.map-placeholder::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 30px,rgba(10,22,40,0.04) 30px,rgba(10,22,40,0.04) 31px),repeating-linear-gradient(90deg,transparent,transparent 30px,rgba(10,22,40,0.04) 30px,rgba(10,22,40,0.04) 31px)}
+.map-train{font-size:2rem;position:relative;z-index:1;text-align:center}
+.map-train p{font-size:0.8rem;color:var(--blue);margin-top:0.5rem;font-weight:600}
+
+/* PNR SECTION */
+.pnr-track-box{background:#fff;border-radius:14px;padding:1.5rem;border:1px solid var(--border);margin-bottom:1.5rem}
+.pnr-track-row{display:flex;gap:1rem;align-items:center}
+.pnr-result{background:var(--surface);border-radius:10px;padding:1rem;margin-top:1rem;display:none}
+.pnr-result.show{display:block}
+.pnr-passenger-list{display:flex;flex-direction:column;gap:0.5rem;margin-top:0.75rem}
+.pnr-passenger{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:0.65rem 0.75rem;border-radius:8px;border:1px solid var(--border)}
+.pnr-passenger .pax-name{font-weight:600;font-size:0.85rem;color:var(--navy)}
+.pnr-passenger .pax-seat{font-size:0.78rem;color:var(--muted)}
+.pnr-passenger .pax-status{font-size:0.75rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px}
+.confirmed{background:#d1fae5;color:#065f46}
+.waitlist{background:#fee2e2;color:#991b1b}
+
+/* ====== FOOD ORDERS ====== */
+.food-page{background:var(--light);padding:2rem}
+.food-layout{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 320px;gap:1.5rem}
+.food-main{}
+.food-hero{background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:16px;padding:1.8rem;margin-bottom:1.5rem;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.food-hero-text h3{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:0.3rem}
+.food-hero-text p{font-size:0.85rem;opacity:0.9}
+.food-hero-emoji{font-size:3rem}
+.food-filter{display:flex;gap:0.5rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.food-filter-btn{padding:0.4rem 1rem;border-radius:50px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:600;color:var(--muted);transition:all 0.2s}
+.food-filter-btn.active{border-color:var(--accent2);background:var(--accent2);color:#fff}
+.food-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.food-item-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--border);transition:all 0.2s;cursor:pointer}
+.food-item-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.1);transform:translateY(-2px)}
+.food-img{height:130px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;background:var(--surface)}
+.food-item-info{padding:0.9rem}
+.food-item-name{font-weight:700;font-size:0.88rem;color:var(--navy);margin-bottom:0.2rem}
+.food-item-desc{font-size:0.72rem;color:var(--muted);line-height:1.4;margin-bottom:0.6rem}
+.food-item-bottom{display:flex;justify-content:space-between;align-items:center}
+.food-price{font-weight:700;color:var(--blue);font-size:0.95rem}
+.veg-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.veg{background:var(--green)}
+.non-veg{background:var(--red)}
+.btn-add{background:var(--navy);color:#fff;border:none;padding:0.35rem 0.75rem;border-radius:6px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.75rem;font-weight:700;transition:all 0.2s}
+.btn-add:hover{background:var(--blue)}
+.btn-add.added{background:var(--green)}
+
+/* CART */
+.cart-panel{background:#fff;border-radius:14px;padding:1.5rem;border:1px solid var(--border);height:fit-content;position:sticky;top:80px}
+.cart-panel h3{font-size:0.9rem;font-weight:700;color:var(--navy);margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)}
+.cart-empty{text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem}
+.cart-empty span{display:block;font-size:2.5rem;margin-bottom:0.5rem}
+.cart-items{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem}
+.cart-item{display:flex;justify-content:space-between;align-items:center;padding:0.6rem;background:var(--surface);border-radius:8px}
+.cart-item-name{font-size:0.82rem;font-weight:600;color:var(--navy)}
+.cart-item-price{font-size:0.82rem;font-weight:700;color:var(--blue)}
+.cart-qty{display:flex;align-items:center;gap:6px;margin-top:3px}
+.qty-btn{width:20px;height:20px;border-radius:4px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;justify-content:center}
+.qty-val{font-size:0.8rem;font-weight:600;color:var(--navy);min-width:16px;text-align:center}
+.cart-train-info{background:var(--surface);border-radius:8px;padding:0.75rem;margin-bottom:1rem}
+.cart-train-info label{font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:0.4rem}
+.cart-train-info select,.cart-train-info input{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;font-family:'Sora',sans-serif;font-size:0.82rem;outline:none;background:#fff;margin-bottom:0.5rem}
+.cart-total{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-top:1px solid var(--border);margin-top:0.5rem}
+.cart-total-label{font-size:0.85rem;color:var(--muted)}
+.cart-total-amount{font-size:1.2rem;font-weight:700;color:var(--navy)}
+.btn-order{width:100%;background:var(--accent2);color:#fff;border:none;padding:0.85rem;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:700;transition:all 0.2s;margin-top:0.5rem}
+.btn-order:hover{background:#c44d02}
+.order-success{background:#d1fae5;border-radius:10px;padding:1.25rem;text-align:center;display:none}
+.order-success.show{display:block}
+.order-success h4{font-weight:700;color:var(--green);margin-bottom:0.3rem}
+.order-success p{font-size:0.82rem;color:#065f46}
+
+/* ====== MY BOOKINGS ====== */
+.bookings-page{background:var(--light);padding:2rem}
+.bookings-layout{max-width:900px;margin:0 auto}
+.booking-tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;background:#fff;padding:4px;border-radius:10px;border:1px solid var(--border)}
+.booking-tab{flex:1;padding:0.55rem;border:none;background:transparent;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.83rem;font-weight:600;color:var(--muted);border-radius:6px;transition:all 0.2s}
+.booking-tab.active{background:var(--navy);color:#fff}
+.booking-list{display:flex;flex-direction:column;gap:1rem}
+.booked-ticket{background:#fff;border-radius:14px;padding:1.5rem;border:1px solid var(--border)}
+.booked-ticket-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.ticket-pnr{font-weight:700;color:var(--navy);font-size:0.95rem}
+.ticket-pnr span{font-size:0.78rem;color:var(--muted);font-weight:400;display:block;margin-top:2px}
+.ticket-status-chip{padding:0.25rem 0.7rem;border-radius:50px;font-size:0.72rem;font-weight:700}
+.chip-confirmed{background:#d1fae5;color:#065f46}
+.chip-cancelled{background:#fee2e2;color:#991b1b}
+.chip-waitlist{background:#fef3c7;color:#92400e}
+.ticket-route-display{display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem}
+.ticket-route-time{font-size:1.2rem;font-weight:700;color:var(--navy)}
+.ticket-route-station{font-size:0.72rem;color:var(--muted)}
+.ticket-route-arrow{flex:1;border-top:2px dashed var(--border);position:relative;margin:0 0.5rem}
+.ticket-route-arrow::after{content:'▶';position:absolute;right:-8px;top:-9px;font-size:0.65rem;color:var(--muted)}
+.ticket-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem}
+.ticket-meta-item{background:var(--surface);border-radius:6px;padding:0.5rem 0.75rem}
+.ticket-meta-item .meta-label{font-size:0.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.ticket-meta-item .meta-val{font-size:0.85rem;font-weight:700;color:var(--navy);margin-top:2px}
+.ticket-actions{display:flex;gap:0.5rem;margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border)}
+.btn-outline-sm{padding:0.4rem 0.9rem;border:1.5px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.78rem;font-weight:600;color:var(--text);transition:all 0.2s}
+.btn-outline-sm:hover{border-color:var(--blue);color:var(--blue)}
+.btn-danger-sm{padding:0.4rem 0.9rem;border:1.5px solid #fee2e2;background:#fff;border-radius:6px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.78rem;font-weight:600;color:var(--red);transition:all 0.2s}
+.btn-danger-sm:hover{background:#fee2e2}
+
+/* PROFILE */
+.profile-page{background:var(--light);padding:2rem}
+.profile-layout{max-width:800px;margin:0 auto}
+.profile-header{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:16px;padding:2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:var(--navy);flex-shrink:0}
+.profile-info h2{font-family:'Playfair Display',serif;font-size:1.6rem;color:#fff}
+.profile-info p{color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:0.2rem}
+.profile-badge{display:inline-block;background:rgba(244,160,28,0.2);border:1px solid rgba(244,160,28,0.5);color:var(--accent);padding:0.2rem 0.7rem;border-radius:50px;font-size:0.72rem;font-weight:700;margin-top:0.5rem}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.profile-card{background:#fff;border-radius:12px;padding:1.5rem;border:1px solid var(--border)}
+.profile-card h3{font-size:0.85rem;font-weight:700;color:var(--navy);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--surface)}
+.info-row:last-child{border-bottom:none}
+.info-row .label{font-size:0.78rem;color:var(--muted)}
+.info-row .value{font-size:0.85rem;font-weight:600;color:var(--navy)}
+
+/* Responsive */
+@media(max-width:768px){
+  .search-form,.booking-layout,.food-layout,.booking-search-panel,.profile-grid{grid-template-columns:1fr}
+  .features-grid{grid-template-columns:1fr 1fr}
+  .hero h1{font-size:2rem}
+  .stats-inner{grid-template-columns:2fr 2fr}
+  nav .nav-links{display:none}
+}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--navy);color:#fff;padding:0.8rem 1.4rem;border-radius:10px;font-size:0.85rem;font-weight:500;z-index:999;transform:translateY(100px);opacity:0;transition:all 0.3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green)}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('home')">
+    <div class="logo-icon">🚂</div>
+    <span>Rail<em>India</em></span>
+  </a>
+  <div class="nav-links">
+    <a href="#" onclick="showPage('home')" id="nav-home" class="active">Home</a>
+    <a href="#" onclick="requireLogin('booking')" id="nav-booking">Book Ticket</a>
+    <a href="#" onclick="requireLogin('tracking')" id="nav-tracking">Live Tracking</a>
+    <a href="#" onclick="requireLogin('food')" id="nav-food">Food Order</a>
+    <a href="#" onclick="requireLogin('bookings')" id="nav-bookings">My Bookings</a>
+  </div>
+  <div class="nav-actions">
+    <div class="user-badge" id="user-badge">
+      <div class="avatar" id="user-avatar">U</div>
+      <span id="user-name" style="color:#fff;font-size:0.85rem;font-weight:600"></span>
+      <button class="btn-login" onclick="logout()" style="margin-left:0.5rem">Logout</button>
+    </div>
+    <div id="auth-buttons">
+      <button class="btn-login" onclick="showPage('login')">Login</button>
+      <button class="btn-register" onclick="showPage('login')">Register</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-tag">🇮🇳 India's Smart Railway Platform</div>
+    <h1>Travel Smarter with<br><span>RailIndia</span></h1>
+    <p>Book tickets, track trains live, and order fresh meals — all in one seamless experience.</p>
+    <div class="search-box">
+      <div class="search-tabs">
+        <button class="search-tab active">🎫 Book Ticket</button>
+        <button class="search-tab">📍 Track Train</button>
+        <button class="search-tab">🍽️ Order Food</button>
+        <button class="search-tab">📋 PNR Status</button>
+      </div>
+      <div class="search-form">
+        <div class="form-group">
+          <label>From Station</label>
+          <input type="text" placeholder="New Delhi (NDLS)" id="home-from"/>
+        </div>
+        <div class="form-group">
+          <label>To Station</label>
+          <input type="text" placeholder="Mumbai Central (MMCT)" id="home-to"/>
+        </div>
+        <div class="form-group">
+          <label>Travel Date</label>
+          <input type="date" id="home-date"/>
+        </div>
+        <button class="btn-search" onclick="homeSearch()">Search Trains</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat-item"><span class="stat-num">13,000+</span><span class="stat-label">Daily Trains</span></div>
+      <div class="stat-item"><span class="stat-num">8.4 Cr</span><span class="stat-label">Daily Passengers</span></div>
+      <div class="stat-item"><span class="stat-num">500+</span><span class="stat-label">Food Partners</span></div>
+      <div class="stat-item"><span class="stat-num">7,335</span><span class="stat-label">Stations</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Everything You Need, One Platform</h2>
+      <p>Seamless railway experience from booking to destination</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" onclick="requireLogin('booking')">
+        <div class="feature-icon" style="background:#e8f0fe">🎫</div>
+        <h3>Instant Ticket Booking</h3>
+        <p>Book tickets across all classes — Sleeper, AC, Rajdhani & more with real-time availability.</p>
+      </div>
+      <div class="feature-card" onclick="requireLogin('tracking')">
+        <div class="feature-icon" style="background:#e8f5e9">📍</div>
+        <h3>Live Train Tracking</h3>
+        <p>Track your train's exact position, get delay alerts, and see real-time route progress.</p>
+      </div>
+      <div class="feature-card" onclick="requireLogin('food')">
+        <div class="feature-icon" style="background:#fff3e0">🍽️</div>
+        <h3>Meal in Train</h3>
+        <p>Pre-order from 500+ restaurants. Hot meals delivered to your seat at scheduled stops.</p>
+      </div>
+      <div class="feature-card" onclick="requireLogin('tracking')">
+        <div class="feature-icon" style="background:#fce4ec">📋</div>
+        <h3>PNR Status Check</h3>
+        <p>Instantly check your booking confirmation, seat allocation, and waitlist position.</p>
+      </div>
+      <div class="feature-card" onclick="requireLogin('bookings')">
+        <div class="feature-icon" style="background:#ede7f6">🗂️</div>
+        <h3>My Bookings</h3>
+        <p>View, modify or cancel your upcoming and past journeys from one dashboard.</p>
+      </div>
+      <div class="feature-card" onclick="requireLogin('profile')">
+        <div class="feature-icon" style="background:#e0f7fa">👤</div>
+        <h3>Gold Member Perks</h3>
+        <p>Earn RailPoints on every booking. Enjoy priority allocation and exclusive member discounts.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div class="page" id="page-login">
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="login-tab" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" id="register-tab" onclick="switchAuthTab('register')">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="login-form">
+        <h2>Welcome back</h2>
+        <p>Login to access your railway dashboard</p>
+        <div class="input-group">
+          <label>Mobile / Email</label>
+          <input type="text" id="login-email" placeholder="9876543210 or email@example.com"/>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="login-pass" placeholder="Enter your password"/>
+        </div>
+        <button class="btn-primary" onclick="doLogin()">Login to RailIndia</button>
+        <div style="text-align:center;margin-top:0.75rem">
+          <a href="#" style="font-size:0.82rem;color:var(--blue);text-decoration:none">Forgot Password?</a>
+        </div>
+        <div class="divider"><span>or continue with</span></div>
+        <div class="social-login">
+          <button class="btn-social" onclick="doLogin()">🔵 Google</button>
+          <button class="btn-social" onclick="doLogin()">📱 OTP Login</button>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div id="register-form" style="display:none">
+        <h2>Create Account</h2>
+        <p>Join millions of smart travellers on RailIndia</p>
+        <div class="input-group">
+          <label>Full Name</label>
+          <input type="text" id="reg-name" placeholder="Arjun Sharma"/>
+        </div>
+        <div class="input-group">
+          <label>Mobile Number</label>
+          <input type="text" id="reg-mobile" placeholder="9876543210"/>
+        </div>
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" id="reg-email" placeholder="arjun@example.com"/>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="reg-pass" placeholder="Create a strong password"/>
+        </div>
+        <button class="btn-primary" onclick="doRegister()">Create My Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TICKET BOOKING PAGE -->
+<div class="page" id="page-booking">
+  <div class="booking-page">
+    <div class="page-header">
+      <h2>Book Your Train Ticket</h2>
+      <p>Search across 13,000+ trains with real-time seat availability</p>
+    </div>
+    <div class="booking-layout">
+      <div class="booking-search-panel">
+        <h3>🔍 Search Trains</h3>
+        <div class="form-group" style="margin-bottom:0.75rem">
+          <label>From Station</label>
+          <input type="text" id="b-from" value="New Delhi (NDLS)"/>
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem">
+          <label>To Station</label>
+          <input type="text" id="b-to" value="Mumbai Central (MMCT)"/>
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem">
+          <label>Date of Journey</label>
+          <input type="date" id="b-date"/>
+        </div>
+        <div class="form-group" style="margin-bottom:1rem">
+          <label>Class</label>
+          <select id="b-class">
+            <option>All Classes</option>
+            <option>Sleeper (SL)</option>
+            <option>3rd AC (3A)</option>
+            <option>2nd AC (2A)</option>
+            <option>1st AC (1A)</option>
+          </select>
+        </div>
+        <button class="btn-book" style="margin:0;width:100%;display:block" onclick="searchTrains()">Search Trains</button>
+        <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
+          <p style="font-size:0.75rem;font-weight:700;color:var(--navy);margin-bottom:0.5rem">POPULAR ROUTES</p>
+          <div style="display:flex;flex-direction:column;gap:0.4rem">
+            <a href="#" onclick="quickRoute('New Delhi (NDLS)','Mumbai Central (MMCT)')" style="font-size:0.78rem;color:var(--blue);text-decoration:none">Delhi → Mumbai</a>
+            <a href="#" onclick="quickRoute('Bengaluru (SBC)','Chennai Central (MAS)')" style="font-size:0.78rem;color:var(--blue);text-decoration:none">Bengaluru → Chennai</a>
+            <a href="#" onclick="quickRoute('Mumbai (CST)','Pune (PUNE)')" style="font-size:0.78rem;color:var(--blue);text-decoration:none">Mumbai → Pune</a>
+            <a href="#" onclick="quickRoute('Kolkata (HWH)','New Delhi (NDLS)')" style="font-size:0.78rem;color:var(--blue);text-decoration:none">Kolkata → Delhi</a>
+          </div>
+        </div>
+      </div>
+      <div class="results-panel" id="train-results">
+        <div style="background:#fff;border-radius:14px;padding:2rem;border:1px solid var(--border);text-align:center;color:var(--muted)">
+          <div style="font-size:2.5rem;margin-bottom:0.75rem">🚂</div>
+          <p style="font-weight:600;color:var(--navy);margin-bottom:0.3rem">Search for Trains</p>
+          <p style="font-size:0.83rem">Select your route and date to see available trains</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal" id="modal-content">
+    <div id="modal-booking-form">
+      <div class="modal-header">
+        <h3>Passenger Details</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem" id="modal-train-info"></p>
+      <div id="passenger-forms">
+        <div class="passenger-row">
+          <h4>Passenger 1</h4>
+          <div class="inline-grid">
+            <div class="form-group"><label>Full Name</label><input type="text" placeholder="As on ID proof"/></div>
+            <div class="form-group"><label>Age</label><input type="number" placeholder="25" min="1" max="120"/></div>
+            <div class="form-group"><label>Gender</label><select><option>Male</option><option>Female</option><option>Other</option></select></div>
+          </div>
+        </div>
+      </div>
+      <button style="background:var(--surface);border:1.5px dashed var(--border);width:100%;padding:0.65rem;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.82rem;color:var(--blue);font-weight:600;margin-top:0.5rem" onclick="addPassenger()">+ Add Passenger</button>
+      <div style="background:var(--surface);border-radius:10px;padding:1rem;margin:1rem 0">
+        <p style="font-size:0.78rem;font-weight:700;color:var(--navy);margin-bottom:0.5rem">CONTACT DETAILS</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+          <div class="form-group"><label>Mobile</label><input type="text" placeholder="10-digit number"/></div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="your@email.com"/></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div><div class="total-label">Total Amount</div><div class="total-amount" id="modal-total">₹1,848</div></div>
+        <button class="btn-confirm" onclick="confirmBooking()">Confirm & Pay →</button>
+      </div>
+    </div>
+    <div class="ticket-success" id="booking-success">
+      <div class="checkmark">🎉</div>
+      <h3>Booking Confirmed!</h3>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem">Your ticket has been booked successfully</p>
+      <div class="pnr-display">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem">PNR Number</div>
+        <div class="pnr-num" id="success-pnr">4529302144</div>
+      </div>
+      <p style="font-size:0.78rem;color:var(--muted)">SMS & Email confirmation sent ✓</p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;margin-top:1.25rem">
+        <button class="btn-outline-sm" onclick="closeModal();showPage('bookings')">View Booking</button>
+        <button class="btn-confirm" onclick="closeModal()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKING PAGE -->
+<div class="page" id="page-tracking">
+  <div class="tracking-page">
+    <div class="page-header">
+      <h2>Live Train Tracking</h2>
+      <p>Real-time position and route status</p>
+    </div>
+    <div class="tracking-layout">
+      <div class="pnr-track-box">
+        <h3 style="font-size:0.9rem;font-weight:700;color:var(--navy);margin-bottom:1rem">📋 Check PNR Status</h3>
+        <div class="pnr-track-row">
+          <input type="text" id="pnr-input" placeholder="Enter 10-digit PNR number" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:0.65rem 1rem;font-family:'Sora',sans-serif;font-size:0.9rem;outline:none"/>
+          <button class="btn-book" style="margin:0" onclick="checkPNR()">Check PNR</button>
+        </div>
+        <div class="pnr-result" id="pnr-result">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+            <div>
+              <div style="font-weight:700;font-size:0.9rem;color:var(--navy)">Rajdhani Express #12951</div>
+              <div style="font-size:0.78rem;color:var(--muted)">New Delhi → Mumbai Central · 30 Apr 2026</div>
+            </div>
+            <span class="ticket-status-chip chip-confirmed">Confirmed</span>
+          </div>
+          <div class="pnr-passenger-list">
+            <div class="pnr-passenger"><div><div class="pax-name">Rahul Sharma</div><div class="pax-seat">B2 · Seat 32 · Lower</div></div><span class="pax-status confirmed">CNF</span></div>
+            <div class="pnr-passenger"><div><div class="pax-name">Priya Sharma</div><div class="pax-seat">B2 · Seat 33 · Upper</div></div><span class="pax-status confirmed">CNF</span></div>
+            <div class="pnr-passenger"><div><div class="pax-name">Rohan Sharma</div><div class="pax-seat">WL #4</div></div><span class="pax-status waitlist">WL 4</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="track-search">
+        <h3 style="font-size:0.9rem;font-weight:700;color:var(--navy);margin-bottom:1rem">🚂 Track Train by Number</h3>
+        <div class="track-input-row">
+          <div class="form-group">
+            <label>Train Number or Name</label>
+            <input type="text" id="track-train" placeholder="e.g. 12951 or Rajdhani"/>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="track-date"/>
+          </div>
+          <button class="btn-book" style="margin:0" onclick="trackTrain()">Track Now</button>
+        </div>
+      </div>
+
+      <div class="track-result" id="track-result">
+        <div class="track-info">
+          <div class="train-info-big">
+            <h3>12951 — Mumbai Rajdhani Express</h3>
+            <p>New Delhi (NDLS) → Mumbai Central (MMCT) · Daily</p>
+          </div>
+          <span class="status-chip status-ontime">Running On Time</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem">
+          <div style="background:var(--surface);border-radius:8px;padding:0.75rem">
+            <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Current Location</div>
+            <div style="font-weight:700;color:var(--navy);font-size:1rem;margin-top:3px">Ratlam Junction</div>
+            <div style="font-size:0.78rem;color:var(--muted)">ETA: 02:20 PM</div>
+          </div>
+          <div style="background:var(--surface);border-radius:8px;padding:0.75rem">
+            <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Next Stop</div>
+            <div style="font-weight:700;color:var(--navy);font-size:1rem;margin-top:3px">Vadodara Junction</div>
+            <div style="font-size:0.78rem;color:var(--muted)">Arr: 04:55 PM</div>
+          </div>
+        </div>
+
+        <h4 style="font-size:0.85rem;font-weight:700;color:var(--navy);margin-bottom:1rem">Route Progress</h4>
+        <div class="route-progress">
+          <div class="stop-item passed">
+            <div class="stop-dot"></div>
+            <div class="stop-name">New Delhi (NDLS)</div>
+            <div class="stop-time">Dep: 06:10 AM</div>
+            <span class="stop-status-badge sst-dep">DEPARTED</span>
+          </div>
+          <div class="stop-item passed">
+            <div class="stop-dot"></div>
+            <div class="stop-name">Kota Junction</div>
+            <div class="stop-time">Dep: 10:45 AM</div>
+            <span class="stop-status-badge sst-dep">DEPARTED</span>
+          </div>
+          <div class="stop-item current">
+            <div class="stop-dot"></div>
+            <div class="stop-name">🚂 Ratlam Junction</div>
+            <div class="stop-time">ETA: 02:20 PM</div>
+            <span class="stop-status-badge sst-current">IN TRANSIT</span>
+          </div>
+          <div class="stop-item">
+            <div class="stop-dot"></div>
+            <div class="stop-name">Vadodara Junction</div>
+            <div class="stop-time">Arr: 04:55 PM</div>
+            <span class="stop-status-badge sst-next">UPCOMING</span>
+          </div>
+          <div class="stop-item">
+            <div class="stop-dot"></div>
+            <div class="stop-name">Mumbai Central (MMCT)</div>
+            <div class="stop-time">Arr: 08:35 PM</div>
+            <span class="stop-status-badge sst-next">DESTINATION</span>
+          </div>
+        </div>
+
+        <div class="map-placeholder">
+          <div class="map-train">
+            🗺️
+            <p>Live Map · Ratlam → Vadodara</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOD ORDER PAGE -->
+<div class="page" id="page-food">
+  <div class="food-page">
+    <div class="page-header">
+      <h2>Order Food in Train</h2>
+      <p>Fresh meals from top restaurants, delivered to your seat</p>
+    </div>
+    <div class="food-layout">
+      <div class="food-main">
+        <div class="food-hero">
+          <div class="food-hero-text">
+            <h3>Meal in Motion</h3>
+            <p>Order now · Delivered at your next stop</p>
+            <p style="font-size:0.78rem;margin-top:0.5rem;opacity:0.8">🎉 Use code RAILFIRST for 20% off first order</p>
+          </div>
+          <div class="food-hero-emoji">🍛</div>
+        </div>
+        <div class="food-filter">
+          <button class="food-filter-btn active" onclick="filterFood('all',this)">All</button>
+          <button class="food-filter-btn" onclick="filterFood('veg',this)">🥦 Veg</button>
+          <button class="food-filter-btn" onclick="filterFood('nonveg',this)">🍗 Non-Veg</button>
+          <button class="food-filter-btn" onclick="filterFood('breakfast',this)">☀️ Breakfast</button>
+          <button class="food-filter-btn" onclick="filterFood('snacks',this)">🍿 Snacks</button>
+          <button class="food-filter-btn" onclick="filterFood('drinks',this)">🥤 Drinks</button>
+        </div>
+        <div class="food-grid" id="food-grid"></div>
+      </div>
+
+      <div>
+        <div class="cart-panel">
+          <h3>🛒 Your Order</h3>
+          <div class="cart-train-info">
+            <label>Train & Seat Details</label>
+            <input type="text" id="cart-pnr" placeholder="PNR Number"/>
+            <input type="text" id="cart-seat" placeholder="Coach & Seat (e.g. B2-32)"/>
+          </div>
+          <div class="cart-empty" id="cart-empty"><span>🍽️</span>Your cart is empty<br><br><small>Add items to get started</small></div>
+          <div class="cart-items" id="cart-items" style="display:none"></div>
+          <div id="cart-total-section" style="display:none">
+            <div class="cart-total">
+              <span class="cart-total-label">Subtotal</span>
+              <span class="cart-total-amount" id="cart-total">₹0</span>
+            </div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.5rem">+ ₹30 delivery · Free above ₹299</div>
+            <button class="btn-order" onclick="placeOrder()">Place Order →</button>
+          </div>
+          <div class="order-success" id="order-success">
+            <h4>Order Placed! 🎉</h4>
+            <p>Your food will be delivered at <strong>Vadodara Junction</strong></p>
+            <p style="margin-top:0.3rem">Order ID: <strong>#RI8829341</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MY BOOKINGS PAGE -->
+<div class="page" id="page-bookings">
+  <div class="bookings-page">
+    <div class="page-header">
+      <h2>My Bookings</h2>
+      <p>Manage your upcoming and past journeys</p>
+    </div>
+    <div class="bookings-layout">
+      <div class="booking-tabs">
+        <button class="booking-tab active" onclick="switchBookingTab('upcoming',this)">Upcoming (3)</button>
+        <button class="booking-tab" onclick="switchBookingTab('past',this)">Past Journeys</button>
+        <button class="booking-tab" onclick="switchBookingTab('cancelled',this)">Cancelled</button>
+      </div>
+      <div class="booking-list" id="booking-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div class="page" id="page-profile">
+  <div class="profile-page">
+    <div class="profile-layout">
+      <div class="profile-header">
+        <div class="profile-avatar" id="profile-avatar">A</div>
+        <div class="profile-info">
+          <h2 id="profile-name">Arjun Sharma</h2>
+          <p id="profile-email">arjun@example.com</p>
+          <p id="profile-mobile" style="margin-top:2px;color:rgba(255,255,255,0.7);font-size:0.83rem">+91 98765 43210</p>
+          <span class="profile-badge">⭐ Gold Member · 2,450 RailPoints</span>
+        </div>
+      </div>
+      <div class="profile-grid">
+        <div class="profile-card">
+          <h3>Personal Information</h3>
+          <div class="info-row"><span class="label">Full Name</span><span class="value" id="pi-name">Arjun Sharma</span></div>
+          <div class="info-row"><span class="label">Date of Birth</span><span class="value">12 March 1992</span></div>
+          <div class="info-row"><span class="label">Gender</span><span class="value">Male</span></div>
+          <div class="info-row"><span class="label">Nationality</span><span class="value">Indian</span></div>
+        </div>
+        <div class="profile-card">
+          <h3>Contact Details</h3>
+          <div class="info-row"><span class="label">Mobile</span><span class="value" id="pi-mobile">+91 98765 43210</span></div>
+          <div class="info-row"><span class="label">Email</span><span class="value" id="pi-email">arjun@example.com</span></div>
+          <div class="info-row"><span class="label">City</span><span class="value">New Delhi</span></div>
+          <div class="info-row"><span class="label">State</span><span class="value">Delhi</span></div>
+        </div>
+        <div class="profile-card">
+          <h3>Travel Stats</h3>
+          <div class="info-row"><span class="label">Total Journeys</span><span class="value">47</span></div>
+          <div class="info-row"><span class="label">Distance Covered</span><span class="value">38,420 km</span></div>
+          <div class="info-row"><span class="label">Member Since</span><span class="value">Jan 2021</span></div>
+          <div class="info-row"><span class="label">Membership</span><span class="value" style="color:var(--accent)">⭐ Gold</span></div>
+        </div>
+        <div class="profile-card">
+          <h3>RailPoints Wallet</h3>
+          <div class="info-row"><span class="label">Available Points</span><span class="value" style="color:var(--blue)">2,450 pts</span></div>
+          <div class="info-row"><span class="label">Points Value</span><span class="value">₹245</span></div>
+          <div class="info-row"><span class="label">This Month Earned</span><span class="value">380 pts</span></div>
+          <div class="info-row"><span class="label">Expiry</span><span class="value">31 Dec 2026</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="payment-modal">
+  <div class="modal" id="payment-modal-box" style="max-width:480px">
+    <div id="payment-form-section">
+      <div class="modal-header">
+        <h3>💳 Secure Payment</h3>
+        <button class="modal-close" onclick="closePaymentModal()">✕</button>
+      </div>
+      <div style="background:var(--surface);border-radius:10px;padding:0.9rem 1.1rem;margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:0.82rem;color:var(--muted);font-weight:600">AMOUNT TO PAY</span>
+        <span style="font-size:1.4rem;font-weight:800;color:var(--navy)" id="pay-amount">₹0</span>
+      </div>
+
+      <!-- Payment tabs -->
+      <div style="display:flex;gap:0;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:1.2rem" id="pay-tabs">
+        <button onclick="switchPayTab('upi')" class="pay-tab active" id="ptab-upi" style="flex:1;padding:0.6rem;border:none;background:#fff;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:700;color:var(--navy);border-right:1px solid var(--border);transition:all 0.2s">📱 UPI</button>
+        <button onclick="switchPayTab('card')" class="pay-tab" id="ptab-card" style="flex:1;padding:0.6rem;border:none;background:#fff;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:700;color:var(--muted);border-right:1px solid var(--border);transition:all 0.2s">💳 Card</button>
+        <button onclick="switchPayTab('netbanking')" class="pay-tab" id="ptab-netbanking" style="flex:1;padding:0.6rem;border:none;background:#fff;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:700;color:var(--muted);border-right:1px solid var(--border);transition:all 0.2s">🏦 Net Banking</button>
+        <button onclick="switchPayTab('wallet')" class="pay-tab" id="ptab-wallet" style="flex:1;padding:0.6rem;border:none;background:#fff;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.8rem;font-weight:700;color:var(--muted);transition:all 0.2s">👛 Wallet</button>
+      </div>
+
+      <!-- UPI -->
+      <div id="pay-upi">
+        <div style="margin-bottom:1rem">
+          <p style="font-size:0.78rem;font-weight:700;color:var(--navy);margin-bottom:0.6rem">SELECT UPI APP</p>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.6rem">
+            <div onclick="selectUpiApp(this,'GPay')" class="upi-app" style="border:2px solid var(--border);border-radius:10px;padding:0.7rem 0.4rem;text-align:center;cursor:pointer;transition:all 0.2s;font-size:0.72rem;font-weight:700">🔵<br/>GPay</div>
+            <div onclick="selectUpiApp(this,'PhonePe')" class="upi-app" style="border:2px solid var(--border);border-radius:10px;padding:0.7rem 0.4rem;text-align:center;cursor:pointer;transition:all 0.2s;font-size:0.72rem;font-weight:700">🟣<br/>PhonePe</div>
+            <div onclick="selectUpiApp(this,'Paytm')" class="upi-app" style="border:2px solid var(--border);border-radius:10px;padding:0.7rem 0.4rem;text-align:center;cursor:pointer;transition:all 0.2s;font-size:0.72rem;font-weight:700">🔵<br/>Paytm</div>
+            <div onclick="selectUpiApp(this,'BHIM')" class="upi-app" style="border:2px solid var(--border);border-radius:10px;padding:0.7rem 0.4rem;text-align:center;cursor:pointer;transition:all 0.2s;font-size:0.72rem;font-weight:700">🟠<br/>BHIM</div>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>— OR ENTER UPI ID —</label>
+          <input type="text" id="upi-id" placeholder="yourname@upi" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:0.7rem 1rem;font-family:'Sora',sans-serif;font-size:0.9rem;outline:none"/>
+        </div>
+      </div>
+
+      <!-- CARD -->
+      <div id="pay-card" style="display:none">
+        <div class="input-group">
+          <label>Card Number</label>
+          <input type="text" id="card-num" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:0.7rem 1rem;font-family:'Sora',sans-serif;font-size:0.9rem;outline:none;letter-spacing:2px"/>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+          <div class="input-group">
+            <label>Expiry Date</label>
+            <input type="text" id="card-exp" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:0.7rem 1rem;font-family:'Sora',sans-serif;font-size:0.9rem;outline:none"/>
+          </div>
+          <div class="input-group">
+            <label>CVV</label>
+            <input type="password" id="card-cvv" placeholder="•••" maxlength="4" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:0.7rem 1rem;font-family:'Sora',sans-serif;font-size:0.9rem;outline:none"/>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Cardholder Name</label>
+          <input type="text" id="card-name" placeholder="Name on card" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:0.7rem 1rem;font-family:'Sora',sans-serif;font-size:0.9rem;outline:none"/>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:0.3rem">
+          <img src="https://img.icons8.com/color/28/visa.png" style="height:22px;opacity:0.8" onerror="this.style.display='none'"/>
+          <span style="font-size:1.2rem">💳</span>
+          <span style="font-size:0.72rem;color:var(--muted);align-self:center">Visa · Mastercard · RuPay · Amex accepted</span>
+        </div>
+      </div>
+
+      <!-- NET BANKING -->
+      <div id="pay-netbanking" style="display:none">
+        <p style="font-size:0.78rem;font-weight:700;color:var(--navy);margin-bottom:0.8rem">SELECT YOUR BANK</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem">
+          <div onclick="selectBank(this)" class="bank-opt" style="border:2px solid var(--border);border-radius:8px;padding:0.65rem 0.8rem;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s;display:flex;align-items:center;gap:8px">🏦 SBI</div>
+          <div onclick="selectBank(this)" class="bank-opt" style="border:2px solid var(--border);border-radius:8px;padding:0.65rem 0.8rem;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s;display:flex;align-items:center;gap:8px">🏦 HDFC Bank</div>
+          <div onclick="selectBank(this)" class="bank-opt" style="border:2px solid var(--border);border-radius:8px;padding:0.65rem 0.8rem;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s;display:flex;align-items:center;gap:8px">🏦 ICICI Bank</div>
+          <div onclick="selectBank(this)" class="bank-opt" style="border:2px solid var(--border);border-radius:8px;padding:0.65rem 0.8rem;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s;display:flex;align-items:center;gap:8px">🏦 Axis Bank</div>
+          <div onclick="selectBank(this)" class="bank-opt" style="border:2px solid var(--border);border-radius:8px;padding:0.65rem 0.8rem;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s;display:flex;align-items:center;gap:8px">🏦 Kotak Bank</div>
+          <div onclick="selectBank(this)" class="bank-opt" style="border:2px solid var(--border);border-radius:8px;padding:0.65rem 0.8rem;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s;display:flex;align-items:center;gap:8px">🏦 Punjab National</div>
+        </div>
+        <div class="input-group">
+          <label>OR SELECT OTHER BANK</label>
+          <select style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:0.7rem 1rem;font-family:'Sora',sans-serif;font-size:0.88rem;outline:none;background:#fff">
+            <option>Select your bank...</option>
+            <option>Bank of Baroda</option><option>Canara Bank</option><option>Union Bank</option>
+            <option>Yes Bank</option><option>IndusInd Bank</option><option>IDFC First Bank</option>
+            <option>Federal Bank</option><option>South Indian Bank</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- WALLET -->
+      <div id="pay-wallet" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+          <div onclick="selectWallet(this)" class="wallet-opt" style="border:2px solid var(--border);border-radius:10px;padding:1rem;text-align:center;cursor:pointer;transition:all 0.2s">
+            <div style="font-size:1.5rem;margin-bottom:4px">🔵</div><div style="font-size:0.8rem;font-weight:700">Paytm Wallet</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">Balance: ₹1,240</div>
+          </div>
+          <div onclick="selectWallet(this)" class="wallet-opt" style="border:2px solid var(--border);border-radius:10px;padding:1rem;text-align:center;cursor:pointer;transition:all 0.2s">
+            <div style="font-size:1.5rem;margin-bottom:4px">🟠</div><div style="font-size:0.8rem;font-weight:700">Amazon Pay</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">Balance: ₹650</div>
+          </div>
+          <div onclick="selectWallet(this)" class="wallet-opt" style="border:2px solid var(--border);border-radius:10px;padding:1rem;text-align:center;cursor:pointer;transition:all 0.2s">
+            <div style="font-size:1.5rem;margin-bottom:4px">🟡</div><div style="font-size:0.8rem;font-weight:700">RailPoints</div>
+            <div style="font-size:0.72rem;color:var(--green);font-weight:700;margin-top:2px">2,450 pts = ₹245</div>
+          </div>
+          <div onclick="selectWallet(this)" class="wallet-opt" style="border:2px solid var(--border);border-radius:10px;padding:1rem;text-align:center;cursor:pointer;transition:all 0.2s">
+            <div style="font-size:1.5rem;margin-bottom:4px">🟢</div><div style="font-size:0.8rem;font-weight:700">Mobikwik</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">Balance: ₹380</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security & Pay Button -->
+      <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem">
+          <span style="font-size:0.72rem;color:var(--muted)">🔒 256-bit SSL Encrypted &nbsp;·&nbsp; PCI DSS Compliant &nbsp;·&nbsp; RBI Approved</span>
+        </div>
+        <button onclick="processPayment()" style="width:100%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border:none;padding:0.95rem;border-radius:10px;cursor:pointer;font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:700;transition:opacity 0.2s" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+          🔒 Pay Securely &nbsp;<span id="pay-btn-amount">₹0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Processing animation -->
+    <div id="payment-processing" style="display:none;text-align:center;padding:2.5rem 1rem">
+      <div style="font-size:2.5rem;margin-bottom:1rem;animation:spin 1s linear infinite;display:inline-block">⚙️</div>
+      <p style="font-weight:700;color:var(--navy);margin-bottom:0.4rem">Processing your payment...</p>
+      <p style="font-size:0.82rem;color:var(--muted)">Please do not close this window</p>
+    </div>
+
+    <!-- Payment success -->
+    <div id="payment-success" style="display:none;text-align:center;padding:2rem">
+      <div style="font-size:3rem;margin-bottom:0.75rem">✅</div>
+      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:0.4rem" id="pay-success-title">Payment Successful!</h3>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem" id="pay-success-sub"></p>
+      <div style="background:var(--surface);border-radius:10px;padding:1rem;margin-bottom:1.2rem">
+        <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem">TRANSACTION ID</div>
+        <div style="font-size:0.95rem;font-weight:800;color:var(--navy);letter-spacing:2px" id="txn-id">—</div>
+      </div>
+      <div id="pnr-display-final" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:10px;padding:1rem;margin-bottom:1.2rem;display:none">
+        <div style="font-size:0.7rem;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem">PNR NUMBER</div>
+        <div style="font-size:1.5rem;font-weight:800;color:var(--navy);letter-spacing:3px" id="final-pnr-num">—</div>
+      </div>
+      <div style="display:flex;gap:0.75rem;justify-content:center">
+        <button onclick="closePaymentModal()" class="btn-outline-sm">Close</button>
+        <button onclick="closePaymentModal();showPage('bookings')" class="btn-confirm" id="pay-done-btn">View Bookings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.pay-tab.pt-active{background:var(--navy)!important;color:#fff!important}
+.upi-app.sel,.bank-opt.sel,.wallet-opt.sel{border-color:var(--blue)!important;background:#e8f0fe!important}
+</style>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+let currentUser = null;
+let cart = [];
+let passengerCount = 1;
+let selectedTrain = null;
+let bookings = [
+  {pnr:'4529302144',train:'12951 Mumbai Rajdhani',from:'New Delhi (NDLS)',to:'Mumbai Central (MMCT)',date:'30 Apr 2026',class:'2A',coach:'B2',seat:'32',passengers:2,amount:3696,status:'confirmed'},
+  {pnr:'8872019345',train:'12259 Duronto Express',from:'New Delhi (NDLS)',to:'Kolkata (HWH)',date:'15 May 2026',class:'3A',coach:'C4',seat:'18',passengers:1,amount:1248,status:'confirmed'},
+  {pnr:'1122334455',train:'22221 Rajdhani Express',from:'Bengaluru (SBC)',to:'New Delhi (NDLS)',date:'22 May 2026',class:'SL',coach:'S5',seat:'44',passengers:3,amount:1254,status:'waitlist'},
+];
+
+const foodItems = [
+  {id:1,name:'Paneer Butter Masala',desc:'Rich creamy paneer in tomato gravy with butter naan',price:180,emoji:'🍛',type:'veg',category:'lunch'},
+  {id:2,name:'Chicken Biryani',desc:'Aromatic basmati rice with tender chicken pieces',price:220,emoji:'🍚',type:'nonveg',category:'lunch'},
+  {id:3,name:'Masala Dosa',desc:'Crispy dosa with spiced potato filling & chutneys',price:90,emoji:'🫓',type:'veg',category:'breakfast'},
+  {id:4,name:'Aloo Paratha',desc:'Whole wheat bread stuffed with spiced potatoes',price:70,emoji:'🫓',type:'veg',category:'breakfast'},
+  {id:5,name:'Samosa (2 pcs)',desc:'Crispy pastry filled with spiced potatoes and peas',price:40,emoji:'🥟',type:'veg',category:'snacks'},
+  {id:6,name:'Egg Fried Rice',desc:'Wok-tossed rice with scrambled eggs and veggies',price:140,emoji:'🍳',type:'nonveg',category:'lunch'},
+  {id:7,name:'Veg Sandwich',desc:'Multi-grain bread with fresh vegetables and mayo',price:65,emoji:'🥪',type:'veg',category:'snacks'},
+  {id:8,name:'Cold Coffee',desc:'Chilled coffee blend with whipped cream',price:80,emoji:'☕',type:'veg',category:'drinks'},
+  {id:9,name:'Mineral Water 1L',desc:'Packaged drinking water, ISI certified',price:20,emoji:'💧',type:'veg',category:'drinks'},
+  {id:10,name:'Chicken Sandwich',desc:'Grilled chicken with lettuce, tomato, and special sauce',price:110,emoji:'🥪',type:'nonveg',category:'snacks'},
+  {id:11,name:'Dal Makhani + Rice',desc:'Black lentils cooked overnight with cream and butter',price:150,emoji:'🍛',type:'veg',category:'lunch'},
+  {id:12,name:'Fresh Lime Soda',desc:'Refreshing lime soda with mint and rock salt',price:50,emoji:'🍋',type:'veg',category:'drinks'},
+];
+
+// ── MASTER TRAIN DATABASE (50+ trains, all major Indian routes) ──
+const allTrains = [
+  // Delhi ↔ Mumbai
+  {no:'12951',name:'Mumbai Rajdhani Express',from:'New Delhi (NDLS)',to:'Mumbai Central (MMCT)',dep:'16:25',arr:'08:35+1',dur:'16h 10m',classes:[{cls:'SL',avail:'WL 12',price:695,wl:true},{cls:'3A',avail:'AVBL 48',price:1848,wl:false},{cls:'2A',avail:'AVBL 08',price:2740,wl:false},{cls:'1A',avail:'AVBL 03',price:4590,wl:false}],tags:['Daily','Rajdhani']},
+  {no:'12909',name:'Bandra Garib Rath Express',from:'New Delhi (NDLS)',to:'Mumbai Central (MMCT)',dep:'14:30',arr:'10:45+1',dur:'20h 15m',classes:[{cls:'SL',avail:'AVBL 34',price:590,wl:false},{cls:'3A',avail:'AVBL 102',price:1240,wl:false},{cls:'2A',avail:'WL 5',price:1880,wl:true}],tags:['Daily']},
+  {no:'22209',name:'Mumbai Duronto Express',from:'New Delhi (NDLS)',to:'Mumbai Central (MMCT)',dep:'23:00',arr:'16:45+1',dur:'17h 45m',classes:[{cls:'3A',avail:'AVBL 22',price:1690,wl:false},{cls:'2A',avail:'AVBL 10',price:2490,wl:false},{cls:'1A',avail:'WL 2',price:4200,wl:true}],tags:['Tue,Thu,Sat','Superfast']},
+  {no:'12617',name:'Mangala Lakshadweep Exp',from:'New Delhi (NDLS)',to:'Mumbai Central (MMCT)',dep:'06:50',arr:'05:05+1',dur:'22h 15m',classes:[{cls:'SL',avail:'AVBL 180',price:450,wl:false},{cls:'3A',avail:'AVBL 55',price:1150,wl:false}],tags:['Daily']},
+  {no:'12953',name:'August Kranti Rajdhani',from:'New Delhi (NDLS)',to:'Mumbai Central (MMCT)',dep:'17:40',arr:'10:55+1',dur:'17h 15m',classes:[{cls:'SL',avail:'AVBL 62',price:680,wl:false},{cls:'3A',avail:'AVBL 33',price:1780,wl:false},{cls:'2A',avail:'AVBL 14',price:2630,wl:false}],tags:['Daily','Rajdhani']},
+  // Delhi ↔ Kolkata
+  {no:'12301',name:'Howrah Rajdhani Express',from:'New Delhi (NDLS)',to:'Howrah Jn (HWH)',dep:'16:55',arr:'10:00+1',dur:'17h 05m',classes:[{cls:'3A',avail:'AVBL 60',price:1760,wl:false},{cls:'2A',avail:'AVBL 18',price:2580,wl:false},{cls:'1A',avail:'AVBL 06',price:4320,wl:false}],tags:['Daily','Rajdhani']},
+  {no:'12303',name:'Poorva Express',from:'New Delhi (NDLS)',to:'Howrah Jn (HWH)',dep:'08:00',arr:'06:40+1',dur:'22h 40m',classes:[{cls:'SL',avail:'AVBL 200',price:480,wl:false},{cls:'3A',avail:'AVBL 80',price:1260,wl:false},{cls:'2A',avail:'AVBL 22',price:1890,wl:false}],tags:['Daily']},
+  {no:'12259',name:'Duronto Express (HWH)',from:'New Delhi (NDLS)',to:'Howrah Jn (HWH)',dep:'20:00',arr:'13:55+1',dur:'17h 55m',classes:[{cls:'3A',avail:'AVBL 45',price:1700,wl:false},{cls:'2A',avail:'AVBL 12',price:2500,wl:false},{cls:'1A',avail:'WL 1',price:4350,wl:true}],tags:['Mon,Wed,Fri','Superfast']},
+  // Delhi ↔ Chennai
+  {no:'12621',name:'Tamil Nadu Express',from:'New Delhi (NDLS)',to:'Chennai Central (MAS)',dep:'22:30',arr:'07:35+2',dur:'33h 05m',classes:[{cls:'SL',avail:'AVBL 150',price:620,wl:false},{cls:'3A',avail:'AVBL 65',price:1640,wl:false},{cls:'2A',avail:'AVBL 20',price:2420,wl:false}],tags:['Daily']},
+  {no:'22691',name:'Rajdhani Express (MAS)',from:'New Delhi (NDLS)',to:'Chennai Central (MAS)',dep:'15:55',arr:'14:10+1',dur:'22h 15m',classes:[{cls:'3A',avail:'AVBL 40',price:2190,wl:false},{cls:'2A',avail:'AVBL 10',price:3200,wl:false},{cls:'1A',avail:'AVBL 04',price:5400,wl:false}],tags:['Wed,Thu,Sat,Sun','Rajdhani']},
+  // Delhi ↔ Bengaluru
+  {no:'22691',name:'Karnataka Rajdhani Exp',from:'New Delhi (NDLS)',to:'Bengaluru (SBC)',dep:'20:00',arr:'09:45+2',dur:'37h 45m',classes:[{cls:'3A',avail:'AVBL 55',price:2380,wl:false},{cls:'2A',avail:'WL 3',price:3490,wl:true},{cls:'1A',avail:'AVBL 05',price:5850,wl:false}],tags:['Tue,Fri','Rajdhani']},
+  {no:'12627',name:'Karnataka Express',from:'New Delhi (NDLS)',to:'Bengaluru (SBC)',dep:'22:30',arr:'11:30+2',dur:'37h 00m',classes:[{cls:'SL',avail:'AVBL 120',price:700,wl:false},{cls:'3A',avail:'AVBL 75',price:1850,wl:false},{cls:'2A',avail:'AVBL 25',price:2730,wl:false}],tags:['Daily']},
+  // Delhi ↔ Hyderabad
+  {no:'12723',name:'Telangana Express',from:'New Delhi (NDLS)',to:'Hyderabad (HYB)',dep:'06:25',arr:'11:30+1',dur:'29h 05m',classes:[{cls:'SL',avail:'AVBL 90',price:560,wl:false},{cls:'3A',avail:'AVBL 48',price:1490,wl:false},{cls:'2A',avail:'AVBL 16',price:2200,wl:false}],tags:['Daily']},
+  {no:'22693',name:'Rajdhani Express (HYB)',from:'New Delhi (NDLS)',to:'Hyderabad (HYB)',dep:'15:45',arr:'10:30+1',dur:'18h 45m',classes:[{cls:'3A',avail:'AVBL 35',price:2050,wl:false},{cls:'2A',avail:'AVBL 08',price:3010,wl:false},{cls:'1A',avail:'AVBL 03',price:5060,wl:false}],tags:['Mon,Wed,Fri,Sat','Rajdhani']},
+  // Delhi ↔ Ahmedabad
+  {no:'12957',name:'Rajdhani Express (ADI)',from:'New Delhi (NDLS)',to:'Ahmedabad (ADI)',dep:'19:55',arr:'09:45+1',dur:'13h 50m',classes:[{cls:'3A',avail:'AVBL 70',price:1620,wl:false},{cls:'2A',avail:'AVBL 22',price:2390,wl:false},{cls:'1A',avail:'AVBL 08',price:4010,wl:false}],tags:['Daily','Rajdhani']},
+  {no:'12915',name:'Ashram Express',from:'New Delhi (NDLS)',to:'Ahmedabad (ADI)',dep:'15:20',arr:'09:35+1',dur:'18h 15m',classes:[{cls:'SL',avail:'AVBL 160',price:420,wl:false},{cls:'3A',avail:'AVBL 88',price:1110,wl:false},{cls:'2A',avail:'AVBL 24',price:1640,wl:false}],tags:['Daily']},
+  // Delhi ↔ Jaipur
+  {no:'12015',name:'Ajmer Shatabdi Express',from:'New Delhi (NDLS)',to:'Jaipur (JP)',dep:'06:05',arr:'10:40',dur:'4h 35m',classes:[{cls:'CC',avail:'AVBL 210',price:640,wl:false},{cls:'EC',avail:'AVBL 35',price:1210,wl:false}],tags:['Daily','Shatabdi']},
+  {no:'12413',name:'Jammu Rajdhani Express',from:'New Delhi (NDLS)',to:'Jaipur (JP)',dep:'20:00',arr:'00:45+1',dur:'4h 45m',classes:[{cls:'SL',avail:'AVBL 90',price:240,wl:false},{cls:'3A',avail:'AVBL 55',price:640,wl:false},{cls:'2A',avail:'AVBL 18',price:940,wl:false}],tags:['Daily']},
+  // Mumbai ↔ Pune
+  {no:'12124',name:'Deccan Queen Express',from:'Mumbai (CST)',to:'Pune (PUNE)',dep:'07:15',arr:'10:30',dur:'3h 15m',classes:[{cls:'CC',avail:'AVBL 320',price:280,wl:false},{cls:'FC',avail:'AVBL 42',price:420,wl:false}],tags:['Daily']},
+  {no:'11007',name:'Deccan Express',from:'Mumbai (CST)',to:'Pune (PUNE)',dep:'18:25',arr:'21:55',dur:'3h 30m',classes:[{cls:'SL',avail:'AVBL 220',price:190,wl:false},{cls:'2S',avail:'AVBL 400',price:110,wl:false}],tags:['Daily']},
+  {no:'12028',name:'Shatabdi Express (PUNE)',from:'Mumbai (CST)',to:'Pune (PUNE)',dep:'08:00',arr:'11:05',dur:'3h 05m',classes:[{cls:'CC',avail:'AVBL 280',price:360,wl:false},{cls:'EC',avail:'AVBL 30',price:680,wl:false}],tags:['Daily','Shatabdi']},
+  // Mumbai ↔ Goa
+  {no:'10103',name:'Mandovi Express',from:'Mumbai (CST)',to:'Madgaon (MAO)',dep:'07:10',arr:'19:40',dur:'12h 30m',classes:[{cls:'SL',avail:'AVBL 140',price:365,wl:false},{cls:'3A',avail:'AVBL 60',price:970,wl:false},{cls:'2A',avail:'AVBL 15',price:1430,wl:false}],tags:['Daily']},
+  {no:'12051',name:'Janshatabdi Express',from:'Mumbai (CSTM)',to:'Madgaon (MAO)',dep:'05:20',arr:'14:40',dur:'9h 20m',classes:[{cls:'CC',avail:'AVBL 180',price:620,wl:false},{cls:'2S',avail:'AVBL 380',price:240,wl:false}],tags:['Daily']},
+  // Mumbai ↔ Ahmedabad
+  {no:'12009',name:'Shatabdi Express (ADI)',from:'Mumbai Central (MMCT)',to:'Ahmedabad (ADI)',dep:'06:25',arr:'12:55',dur:'6h 30m',classes:[{cls:'CC',avail:'AVBL 250',price:820,wl:false},{cls:'EC',avail:'AVBL 40',price:1560,wl:false}],tags:['Daily','Shatabdi']},
+  {no:'12901',name:'Gujarat Mail',from:'Mumbai Central (MMCT)',to:'Ahmedabad (ADI)',dep:'22:10',arr:'06:05+1',dur:'7h 55m',classes:[{cls:'SL',avail:'AVBL 170',price:300,wl:false},{cls:'3A',avail:'AVBL 80',price:800,wl:false},{cls:'2A',avail:'AVBL 20',price:1180,wl:false}],tags:['Daily']},
+  // Bengaluru ↔ Chennai
+  {no:'12007',name:'Shatabdi Express (MAS)',from:'Bengaluru (SBC)',to:'Chennai Central (MAS)',dep:'06:00',arr:'11:00',dur:'5h 00m',classes:[{cls:'CC',avail:'AVBL 300',price:680,wl:false},{cls:'EC',avail:'AVBL 45',price:1290,wl:false}],tags:['Daily','Shatabdi']},
+  {no:'12608',name:'Lalbagh Express',from:'Bengaluru (SBC)',to:'Chennai Central (MAS)',dep:'06:30',arr:'11:30',dur:'5h 00m',classes:[{cls:'SL',avail:'AVBL 200',price:195,wl:false},{cls:'2S',avail:'AVBL 500',price:100,wl:false}],tags:['Daily']},
+  {no:'12640',name:'Brindavan Express',from:'Bengaluru (SBC)',to:'Chennai Central (MAS)',dep:'07:15',arr:'12:45',dur:'5h 30m',classes:[{cls:'CC',avail:'AVBL 260',price:480,wl:false},{cls:'SL',avail:'AVBL 180',price:195,wl:false}],tags:['Daily']},
+  // Bengaluru ↔ Hyderabad
+  {no:'12785',name:'Kaghaznagar Express',from:'Bengaluru (SBC)',to:'Hyderabad (HYB)',dep:'20:00',arr:'07:40+1',dur:'11h 40m',classes:[{cls:'SL',avail:'AVBL 110',price:280,wl:false},{cls:'3A',avail:'AVBL 55',price:740,wl:false},{cls:'2A',avail:'AVBL 14',price:1090,wl:false}],tags:['Daily']},
+  {no:'12213',name:'Rajdhani Express (SBC)',from:'Bengaluru (SBC)',to:'New Delhi (NDLS)',dep:'20:00',arr:'05:40+2',dur:'33h 40m',classes:[{cls:'3A',avail:'AVBL 48',price:2620,wl:false},{cls:'2A',avail:'WL 2',price:3850,wl:true},{cls:'1A',avail:'AVBL 06',price:6480,wl:false}],tags:['Tue,Thu,Sun','Rajdhani']},
+  // Chennai ↔ Hyderabad
+  {no:'12603',name:'Hyderabad Express',from:'Chennai Central (MAS)',to:'Hyderabad (HYB)',dep:'18:15',arr:'07:15+1',dur:'13h 00m',classes:[{cls:'SL',avail:'AVBL 180',price:310,wl:false},{cls:'3A',avail:'AVBL 70',price:820,wl:false},{cls:'2A',avail:'AVBL 20',price:1210,wl:false}],tags:['Daily']},
+  // Kolkata ↔ Chennai
+  {no:'12841',name:'Coromandel Express',from:'Howrah Jn (HWH)',to:'Chennai Central (MAS)',dep:'14:50',arr:'17:00+1',dur:'26h 10m',classes:[{cls:'SL',avail:'AVBL 150',price:520,wl:false},{cls:'3A',avail:'AVBL 65',price:1380,wl:false},{cls:'2A',avail:'AVBL 18',price:2040,wl:false}],tags:['Daily','Superfast']},
+  // Kolkata ↔ Hyderabad
+  {no:'12703',name:'Falaknuma Express',from:'Howrah Jn (HWH)',to:'Hyderabad (HYB)',dep:'13:50',arr:'19:10+1',dur:'29h 20m',classes:[{cls:'SL',avail:'AVBL 200',price:490,wl:false},{cls:'3A',avail:'AVBL 88',price:1300,wl:false},{cls:'2A',avail:'AVBL 24',price:1920,wl:false}],tags:['Daily']},
+  // Delhi ↔ Lucknow
+  {no:'12229',name:'Lucknow Mail',from:'New Delhi (NDLS)',to:'Lucknow (LKO)',dep:'22:10',arr:'05:15+1',dur:'7h 05m',classes:[{cls:'SL',avail:'AVBL 180',price:235,wl:false},{cls:'3A',avail:'AVBL 90',price:625,wl:false},{cls:'2A',avail:'AVBL 28',price:920,wl:false}],tags:['Daily']},
+  {no:'12004',name:'Lucknow Shatabdi Exp',from:'New Delhi (NDLS)',to:'Lucknow (LKO)',dep:'06:10',arr:'10:40',dur:'4h 30m',classes:[{cls:'CC',avail:'AVBL 380',price:780,wl:false},{cls:'EC',avail:'AVBL 45',price:1480,wl:false}],tags:['Daily','Shatabdi']},
+  // Delhi ↔ Varanasi
+  {no:'12559',name:'Shiv Ganga Express',from:'New Delhi (NDLS)',to:'Varanasi (BSB)',dep:'18:40',arr:'07:00+1',dur:'12h 20m',classes:[{cls:'SL',avail:'AVBL 160',price:295,wl:false},{cls:'3A',avail:'AVBL 70',price:785,wl:false},{cls:'2A',avail:'AVBL 22',price:1160,wl:false}],tags:['Daily']},
+  // Delhi ↔ Patna
+  {no:'12309',name:'Rajendra Nagar Rajdhani',from:'New Delhi (NDLS)',to:'Patna Jn (PNBE)',dep:'11:25',arr:'05:45+1',dur:'18h 20m',classes:[{cls:'3A',avail:'AVBL 58',price:1860,wl:false},{cls:'2A',avail:'AVBL 16',price:2740,wl:false},{cls:'1A',avail:'AVBL 05',price:4600,wl:false}],tags:['Mon,Wed,Fri,Sun','Rajdhani']},
+  // Delhi ↔ Amritsar
+  {no:'12013',name:'Amritsar Shatabdi Exp',from:'New Delhi (NDLS)',to:'Amritsar (ASR)',dep:'07:20',arr:'13:40',dur:'6h 20m',classes:[{cls:'CC',avail:'AVBL 340',price:850,wl:false},{cls:'EC',avail:'AVBL 55',price:1620,wl:false}],tags:['Daily','Shatabdi']},
+  {no:'12031',name:'Amritsar Mail',from:'New Delhi (NDLS)',to:'Amritsar (ASR)',dep:'22:30',arr:'05:10+1',dur:'6h 40m',classes:[{cls:'SL',avail:'AVBL 200',price:240,wl:false},{cls:'3A',avail:'AVBL 100',price:640,wl:false},{cls:'2A',avail:'AVBL 30',price:940,wl:false}],tags:['Daily']},
+  // Delhi ↔ Dehradun
+  {no:'12017',name:'Dehradun Shatabdi Exp',from:'New Delhi (NDLS)',to:'Dehradun (DDN)',dep:'06:50',arr:'12:05',dur:'5h 15m',classes:[{cls:'CC',avail:'AVBL 290',price:720,wl:false},{cls:'EC',avail:'AVBL 40',price:1370,wl:false}],tags:['Daily','Shatabdi']},
+  // Pune ↔ Hyderabad
+  {no:'11401',name:'Nandigram Express',from:'Pune (PUNE)',to:'Hyderabad (HYB)',dep:'17:30',arr:'08:15+1',dur:'14h 45m',classes:[{cls:'SL',avail:'AVBL 130',price:290,wl:false},{cls:'3A',avail:'AVBL 60',price:770,wl:false},{cls:'2A',avail:'AVBL 16',price:1140,wl:false}],tags:['Daily']},
+  // Ahmedabad ↔ Bengaluru
+  {no:'16209',name:'Ajmer-Mysore Express',from:'Ahmedabad (ADI)',to:'Bengaluru (SBC)',dep:'09:45',arr:'22:30+1',dur:'36h 45m',classes:[{cls:'SL',avail:'AVBL 160',price:560,wl:false},{cls:'3A',avail:'AVBL 70',price:1490,wl:false},{cls:'2A',avail:'AVBL 20',price:2200,wl:false}],tags:['Tue,Thu,Sat']},
+  // Guwahati ↔ Delhi
+  {no:'12423',name:'Dibrugarh Rajdhani Exp',from:'Dibrugarh (DBRG)',to:'New Delhi (NDLS)',dep:'18:30',arr:'10:25+2',dur:'39h 55m',classes:[{cls:'3A',avail:'AVBL 50',price:2850,wl:false},{cls:'2A',avail:'AVBL 12',price:4190,wl:false},{cls:'1A',avail:'AVBL 03',price:7050,wl:false}],tags:['Mon,Wed,Fri','Rajdhani']},
+  // Jammu ↔ Delhi
+  {no:'12445',name:'Uttar Sampark Kranti Exp',from:'New Delhi (NDLS)',to:'Jammu Tawi (JAT)',dep:'22:50',arr:'07:40+1',dur:'8h 50m',classes:[{cls:'SL',avail:'AVBL 210',price:260,wl:false},{cls:'3A',avail:'AVBL 100',price:690,wl:false},{cls:'2A',avail:'AVBL 30',price:1020,wl:false}],tags:['Daily']},
+  // Hyderabad ↔ Bengaluru
+  {no:'12701',name:'Hussainsagar Express',from:'Hyderabad (HYB)',to:'Bengaluru (SBC)',dep:'18:30',arr:'06:00+1',dur:'11h 30m',classes:[{cls:'SL',avail:'AVBL 100',price:270,wl:false},{cls:'3A',avail:'AVBL 50',price:720,wl:false},{cls:'2A',avail:'AVBL 12',price:1060,wl:false}],tags:['Daily']},
+  // Trivandrum ↔ Mumbai
+  {no:'16345',name:'Netravathi Express',from:'Thiruvananthapuram (TVC)',to:'Mumbai Central (MMCT)',dep:'11:00',arr:'09:30+2',dur:'46h 30m',classes:[{cls:'SL',avail:'AVBL 110',price:680,wl:false},{cls:'3A',avail:'AVBL 45',price:1800,wl:false},{cls:'2A',avail:'AVBL 12',price:2660,wl:false}],tags:['Daily']},
+  // Bhopal ↔ Delhi
+  {no:'12001',name:'Bhopal Shatabdi Express',from:'New Delhi (NDLS)',to:'Bhopal (BPL)',dep:'06:00',arr:'13:55',dur:'7h 55m',classes:[{cls:'CC',avail:'AVBL 350',price:890,wl:false},{cls:'EC',avail:'AVBL 52',price:1690,wl:false}],tags:['Daily','Shatabdi']},
+  // Nagpur ↔ Delhi  
+  {no:'12625',name:'Kerala Express',from:'New Delhi (NDLS)',to:'Nagpur (NGP)',dep:'11:35',arr:'07:25+1',dur:'19h 50m',classes:[{cls:'SL',avail:'AVBL 170',price:380,wl:false},{cls:'3A',avail:'AVBL 80',price:1010,wl:false},{cls:'2A',avail:'AVBL 22',price:1490,wl:false}],tags:['Daily']},
+  // Ranchi ↔ Delhi
+  {no:'12453',name:'Ranchi Rajdhani Express',from:'Ranchi (RNC)',to:'New Delhi (NDLS)',dep:'20:50',arr:'12:25+1',dur:'15h 35m',classes:[{cls:'3A',avail:'AVBL 52',price:1870,wl:false},{cls:'2A',avail:'AVBL 14',price:2760,wl:false},{cls:'1A',avail:'AVBL 04',price:4640,wl:false}],tags:['Mon,Wed,Thu,Sat','Rajdhani']},
+];
+
+// Build trainData dynamically from search or default to Delhi-Mumbai
+let trainData = allTrains;
+
+// ===== PAGE NAVIGATION =====
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const navEl = document.getElementById('nav-'+page);
+  if(navEl) navEl.classList.add('active');
+  window.scrollTo(0,0);
+  if(page==='food') renderFoodGrid(foodItems);
+  if(page==='bookings') renderBookings('upcoming');
+}
+
+function requireLogin(page){
+  if(!currentUser){showPage('login');showToast('Please login to continue','');}
+  else showPage(page);
+}
+
+// ===== AUTH =====
+function switchAuthTab(tab){
+  document.getElementById('login-form').style.display = tab==='login'?'block':'none';
+  document.getElementById('register-form').style.display = tab==='register'?'block':'none';
+  document.getElementById('login-tab').classList.toggle('active',tab==='login');
+  document.getElementById('register-tab').classList.toggle('active',tab==='register');
+}
+
+function doLogin(){
+  const email = document.getElementById('login-email').value || 'traveller@example.com';
+  const name = email.includes('@') ? email.split('@')[0] : 'Traveller';
+  loginUser({name: capitalize(name), email: email, mobile:'+91 98765 43210'});
+}
+
+function doRegister(){
+  const name = document.getElementById('reg-name').value || 'New User';
+  const email = document.getElementById('reg-email').value || 'user@example.com';
+  const mobile = document.getElementById('reg-mobile').value || '9876543210';
+  loginUser({name, email, mobile:'+91 '+mobile});
+}
+
+function loginUser(user){
+  currentUser = user;
+  document.getElementById('user-badge').style.display='flex';
+  document.getElementById('auth-buttons').style.display='none';
+  document.getElementById('user-avatar').textContent = user.name[0].toUpperCase();
+  document.getElementById('user-name').textContent = user.name.split(' ')[0];
+  // Update profile
+  document.getElementById('profile-avatar').textContent = user.name[0].toUpperCase();
+  document.getElementById('profile-name').textContent = user.name;
+  document.getElementById('profile-email').textContent = user.email;
+  document.getElementById('pi-name').textContent = user.name;
+  document.getElementById('pi-email').textContent = user.email;
+  document.getElementById('pi-mobile').textContent = user.mobile;
+  showToast('Welcome back, '+user.name.split(' ')[0]+'! 👋','success');
+  showPage('home');
+}
+
+function logout(){
+  currentUser=null;
+  document.getElementById('user-badge').style.display='none';
+  document.getElementById('auth-buttons').style.display='flex';
+  showPage('home');
+  showToast('Logged out successfully','');
+}
+
+// ===== BOOKING =====
+function quickRoute(from,to){
+  document.getElementById('b-from').value=from;
+  document.getElementById('b-to').value=to;
+  searchTrains();
+  return false;
+}
+
+// Also populate popular routes on homepage search
+function homeSearch(){
+  const from = document.getElementById('home-from').value;
+  const to = document.getElementById('home-to').value;
+  if(!currentUser){showPage('login');showToast('Please login to search trains','');return;}
+  if(from) document.getElementById('b-from').value = from;
+  if(to) document.getElementById('b-to').value = to;
+  showPage('booking');
+  setTimeout(searchTrains,150);
+}
+
+function normalize(s){ return s.toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim(); }
+function stationMatch(input, stationField){
+  const q = normalize(input);
+  const s = normalize(stationField);
+  const words = q.split(' ').filter(w=>w.length>2);
+  return words.length===0 || words.some(w=>s.includes(w));
+}
+
+function searchTrains(){
+  const panel = document.getElementById('train-results');
+  const fromVal = (document.getElementById('b-from').value||'').trim();
+  const toVal   = (document.getElementById('b-to').value||'').trim();
+  const cls     = document.getElementById('b-class').value;
+
+  panel.innerHTML='<div style="text-align:center;padding:2rem;background:#fff;border-radius:14px;border:1px solid var(--border)">🔄 Searching trains across India...</div>';
+  setTimeout(()=>{
+    let results = allTrains;
+
+    // Filter by from station
+    if(fromVal) results = results.filter(t=>stationMatch(fromVal,t.from));
+    // Filter by to station
+    if(toVal) results = results.filter(t=>stationMatch(toVal,t.to));
+    // If still no results with both filters, try partial
+    if(results.length===0 && fromVal && toVal){
+      results = allTrains.filter(t=>stationMatch(fromVal,t.from)||stationMatch(toVal,t.to));
+    }
+    // Class filter
+    if(cls && cls!=='All Classes'){
+      const clsCode = cls.match(/\(([^)]+)\)/)?.[1];
+      if(clsCode) results = results.filter(t=>t.classes.some(c=>c.cls===clsCode));
+    }
+
+    if(results.length===0){
+      panel.innerHTML=`<div style="background:#fff;border-radius:14px;padding:2.5rem;border:1px solid var(--border);text-align:center;color:var(--muted)">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem">😕</div>
+        <p style="font-weight:700;color:var(--navy);margin-bottom:0.3rem">No trains found</p>
+        <p style="font-size:0.83rem">Try adjusting your search. Popular: Delhi, Mumbai, Chennai, Kolkata, Bengaluru, Hyderabad, Pune, Ahmedabad</p>
+      </div>`;
+      return;
+    }
+
+    let html=`<div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.5rem;font-weight:600">${results.length} train${results.length>1?'s':''} found</div>`;
+    results.forEach(t=>{
+      const tags = t.tags.map(tag=>`<span class="badge badge-${tag.includes('Rajdhani')?'rajdhani':tag.includes('Shatabdi')||tag.includes('Superfast')?'superfast':'daily'}">${tag}</span>`).join('');
+      const defaultIdx = t.classes.findIndex(c=>!c.wl) >= 0 ? t.classes.findIndex(c=>!c.wl) : 0;
+      const classes = t.classes.map((c,i)=>`<div class="class-pill ${c.wl?'wl':''} ${i===defaultIdx?'selected':''}" onclick="selectClass(this,'${t.no}',${c.price})"><div class="cls">${c.cls}</div><div class="avail">${c.avail}</div><div class="price">₹${c.price.toLocaleString('en-IN')}</div></div>`).join('');
+      const bookPrice = t.classes[defaultIdx].price;
+      html+=`<div class="train-card">
+        <div class="train-header">
+          <div><div class="train-name">${t.name}</div><div class="train-no">#${t.no}</div></div>
+          <div class="train-badge">${tags}</div>
+        </div>
+        <div class="train-route">
+          <div class="route-time"><div class="time">${t.dep}</div><div class="station">${t.from.split('(')[0].trim()}</div></div>
+          <div class="route-line"><div class="duration">${t.dur}</div><div class="line"></div></div>
+          <div class="route-time"><div class="time">${t.arr}</div><div class="station">${t.to.split('(')[0].trim()}</div></div>
+        </div>
+        <div class="train-classes">${classes}</div>
+        <button class="btn-book" onclick="openBookingModal('${t.no}','${t.name}',${bookPrice},'${t.from}','${t.to}')">Book Now →</button>
+      </div>`;
+    });
+    panel.innerHTML=html;
+  },600);
+}
+
+function selectClass(el,trainNo,price){
+  el.closest('.train-card').querySelectorAll('.class-pill').forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function openBookingModal(trainNo,trainName,price,from,to){
+  selectedTrain={no:trainNo,name:trainName,price:price,from:from||document.getElementById('b-from').value,to:to||document.getElementById('b-to').value};
+  document.getElementById('modal-train-info').textContent=`${trainName} (#${trainNo}) · ₹${price.toLocaleString('en-IN')} per person`;
+  document.getElementById('modal-total').textContent=`₹${price.toLocaleString('en-IN')}`;
+  document.getElementById('booking-success').classList.remove('show');
+  document.getElementById('modal-booking-form').style.display='block';
+  passengerCount=1;
+  document.getElementById('passenger-forms').innerHTML=`<div class="passenger-row"><h4>Passenger 1</h4><div class="inline-grid"><div class="form-group"><label>Full Name</label><input type="text" placeholder="As on ID proof"/></div><div class="form-group"><label>Age</label><input type="number" placeholder="25" min="1" max="120"/></div><div class="form-group"><label>Gender</label><select><option>Male</option><option>Female</option><option>Other</option></select></div></div></div>`;
+  document.getElementById('booking-modal').classList.add('open');
+}
+
+function addPassenger(){
+  passengerCount++;
+  const div=document.createElement('div');
+  div.className='passenger-row';
+  div.innerHTML=`<h4>Passenger ${passengerCount}</h4><div class="inline-grid"><div class="form-group"><label>Full Name</label><input type="text" placeholder="As on ID proof"/></div><div class="form-group"><label>Age</label><input type="number" placeholder="25" min="1" max="120"/></div><div class="form-group"><label>Gender</label><select><option>Male</option><option>Female</option><option>Other</option></select></div></div>`;
+  document.getElementById('passenger-forms').appendChild(div);
+  document.getElementById('modal-total').textContent=`₹${(selectedTrain?.price||1848)*passengerCount}`;
+}
+
+function closeModal(){document.getElementById('booking-modal').classList.remove('open');}
+
+function confirmBooking(){
+  // Validate basic fields
+  const nameInputs = document.querySelectorAll('#passenger-forms input[type=text]');
+  for(let inp of nameInputs){ if(!inp.value.trim()){ showToast('Please fill all passenger names',''); return; } }
+  // Open payment modal
+  const total = (selectedTrain?.price||1848)*passengerCount;
+  openPaymentModal(total,'booking');
+}
+
+// ===== TRACKING =====
+function checkPNR(){
+  const pnr = document.getElementById('pnr-input').value;
+  if(!pnr){showToast('Please enter PNR number','');return;}
+  document.getElementById('pnr-result').classList.add('show');
+  showToast('PNR status fetched successfully','success');
+}
+
+function trackTrain(){
+  const train = document.getElementById('track-train').value;
+  if(!train){showToast('Please enter train number','');return;}
+  document.getElementById('track-result').classList.add('show');
+  showToast('Live tracking loaded','success');
+}
+
+// ===== FOOD =====
+let foodFilter = 'all';
+function filterFood(type, btn){
+  foodFilter=type;
+  document.querySelectorAll('.food-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = type==='all'?foodItems : type==='veg'?foodItems.filter(f=>f.type==='veg') : type==='nonveg'?foodItems.filter(f=>f.type==='nonveg') : foodItems.filter(f=>f.category===type);
+  renderFoodGrid(filtered);
+}
+
+function renderFoodGrid(items){
+  const grid = document.getElementById('food-grid');
+  if(!grid)return;
+  grid.innerHTML = items.map(item=>{
+    const inCart = cart.find(c=>c.id===item.id);
+    return `<div class="food-item-card">
+      <div class="food-img">${item.emoji}</div>
+      <div class="food-item-info">
+        <div class="food-item-name">${item.name}</div>
+        <div class="food-item-desc">${item.desc}</div>
+        <div class="food-item-bottom">
+          <div>
+            <span class="veg-dot ${item.type}" title="${item.type}"></span>
+            <span class="food-price" style="margin-left:4px">₹${item.price}</span>
+          </div>
+          <button class="btn-add ${inCart?'added':''}" onclick="addToCart(${item.id})">${inCart?'Added ✓':'Add'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addToCart(id){
+  const item = foodItems.find(f=>f.id===id);
+  const existing = cart.find(c=>c.id===id);
+  if(existing){existing.qty++;}
+  else{cart.push({...item,qty:1});}
+  renderCart();
+  renderFoodGrid(foodFilter==='all'?foodItems:foodItems.filter(f=>foodFilter==='veg'?f.type==='veg':foodFilter==='nonveg'?f.type==='nonveg':f.category===foodFilter));
+  showToast(item.name+' added to cart','success');
+}
+
+function changeQty(id,delta){
+  const item = cart.find(c=>c.id===id);
+  if(item){
+    item.qty+=delta;
+    if(item.qty<=0)cart=cart.filter(c=>c.id!==id);
+  }
+  renderCart();
+  renderFoodGrid(foodFilter==='all'?foodItems:foodItems.filter(f=>foodFilter==='veg'?f.type==='veg':foodFilter==='nonveg'?f.type==='nonveg':f.category===foodFilter));
+}
+
+function renderCart(){
+  const empty = document.getElementById('cart-empty');
+  const items = document.getElementById('cart-items');
+  const totalSec = document.getElementById('cart-total-section');
+  const success = document.getElementById('order-success');
+  if(cart.length===0){
+    empty.style.display='block';items.style.display='none';totalSec.style.display='none';
+    return;
+  }
+  empty.style.display='none';items.style.display='flex';totalSec.style.display='block';
+  success.classList.remove('show');
+  let total=0;
+  items.innerHTML=cart.map(c=>{
+    total+=c.price*c.qty;
+    return `<div class="cart-item">
+      <div>
+        <div class="cart-item-name">${c.emoji} ${c.name}</div>
+        <div class="cart-qty">
+          <button class="qty-btn" onclick="changeQty(${c.id},-1)">−</button>
+          <span class="qty-val">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${c.id},1)">+</button>
+        </div>
+      </div>
+      <div class="cart-item-price">₹${c.price*c.qty}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('cart-total').textContent='₹'+(total<299?total+30:total);
+}
+
+function placeOrder(){
+  if(cart.length===0){showToast('Your cart is empty','');return;}
+  const subtotal = cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const total = subtotal < 299 ? subtotal+30 : subtotal;
+  openPaymentModal(total,'food');
+}
+
+// ===== BOOKINGS =====
+function switchBookingTab(tab,btn){
+  document.querySelectorAll('.booking-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBookings(tab);
+}
+
+function renderBookings(tab){
+  const list = document.getElementById('booking-list');
+  if(!list)return;
+  let items = tab==='upcoming'?bookings.filter(b=>b.status!=='cancelled') : tab==='cancelled'?bookings.filter(b=>b.status==='cancelled') : [];
+  if(items.length===0){list.innerHTML='<div style="text-align:center;padding:3rem;background:#fff;border-radius:14px;border:1px solid var(--border);color:var(--muted)"><div style="font-size:2.5rem;margin-bottom:0.75rem">🎫</div><p style="font-weight:600;color:var(--navy)">No bookings found</p></div>';return;}
+  list.innerHTML=items.map(b=>{
+    const statusClass = b.status==='confirmed'?'chip-confirmed':b.status==='waitlist'?'chip-waitlist':'chip-cancelled';
+    const statusText = b.status==='confirmed'?'Confirmed':b.status==='waitlist'?'Waitlisted':'Cancelled';
+    return `<div class="booked-ticket">
+      <div class="booked-ticket-header">
+        <div><div class="ticket-pnr">${b.name}<span>PNR: ${b.pnr}</span></div></div>
+        <span class="ticket-status-chip ${statusClass}">${statusText}</span>
+      </div>
+      <div class="ticket-route-display">
+        <div><div class="ticket-route-time">${b.from.split('(')[1]?.replace(')','')}</div><div class="ticket-route-station">${b.from.split('(')[0].trim()}</div></div>
+        <div class="ticket-route-arrow"></div>
+        <div><div class="ticket-route-time">${b.to.split('(')[1]?.replace(')','')}</div><div class="ticket-route-station">${b.to.split('(')[0].trim()}</div></div>
+      </div>
+      <div class="ticket-meta">
+        <div class="ticket-meta-item"><div class="meta-label">Date</div><div class="meta-val">${b.date}</div></div>
+        <div class="ticket-meta-item"><div class="meta-label">Class</div><div class="meta-val">${b.class}</div></div>
+        <div class="ticket-meta-item"><div class="meta-label">Passengers</div><div class="meta-val">${b.passengers}</div></div>
+        <div class="ticket-meta-item"><div class="meta-label">Amount</div><div class="meta-val">₹${b.amount}</div></div>
+      </div>
+      <div class="ticket-actions">
+        <button class="btn-outline-sm" onclick="showToast('Ticket downloaded! 📄','success')">Download Ticket</button>
+        <button class="btn-outline-sm" onclick="requireLogin('food')">Order Food 🍛</button>
+        <button class="btn-outline-sm" onclick="requireLogin('tracking')">Track Train 📍</button>
+        <button class="btn-danger-sm" onclick="showToast('Cancellation request sent','')">Cancel</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== PAYMENT MODAL =====
+let paymentContext = 'booking'; // 'booking' or 'food'
+let currentPayTotal = 0;
+
+function openPaymentModal(total, context){
+  paymentContext = context;
+  currentPayTotal = total;
+  document.getElementById('pay-amount').textContent = '₹'+total.toLocaleString('en-IN');
+  document.getElementById('pay-btn-amount').textContent = '₹'+total.toLocaleString('en-IN');
+  // Reset sections
+  document.getElementById('payment-form-section').style.display='block';
+  document.getElementById('payment-processing').style.display='none';
+  document.getElementById('payment-success').style.display='none';
+  // Reset tabs to UPI
+  switchPayTab('upi');
+  document.getElementById('payment-modal').classList.add('open');
+}
+
+function closePaymentModal(){
+  document.getElementById('payment-modal').classList.remove('open');
+}
+
+function switchPayTab(tab){
+  ['upi','card','netbanking','wallet'].forEach(t=>{
+    document.getElementById('pay-'+t).style.display = t===tab?'block':'none';
+    const btn = document.getElementById('ptab-'+t);
+    if(btn){ btn.style.background = t===tab?'var(--navy)':'#fff'; btn.style.color = t===tab?'#fff':'var(--muted)'; }
+  });
+}
+
+function selectUpiApp(el, app){ document.querySelectorAll('.upi-app').forEach(a=>a.classList.remove('sel')); el.classList.add('sel'); }
+function selectBank(el){ document.querySelectorAll('.bank-opt').forEach(a=>a.classList.remove('sel')); el.classList.add('sel'); }
+function selectWallet(el){ document.querySelectorAll('.wallet-opt').forEach(a=>a.classList.remove('sel')); el.classList.add('sel'); }
+
+function formatCard(input){
+  let v=input.value.replace(/\D/g,'').substring(0,16);
+  input.value=v.replace(/(.{4})/g,'$1 ').trim();
+}
+function formatExpiry(input){
+  let v=input.value.replace(/\D/g,'').substring(0,4);
+  if(v.length>=2) v=v.substring(0,2)+' / '+v.substring(2);
+  input.value=v;
+}
+
+function processPayment(){
+  // Validate based on active tab
+  const activeTab = ['upi','card','netbanking','wallet'].find(t=>document.getElementById('pay-'+t).style.display!=='none');
+  if(activeTab==='card'){
+    const num = document.getElementById('card-num').value.replace(/\s/g,'');
+    const exp = document.getElementById('card-exp').value;
+    const cvv = document.getElementById('card-cvv').value;
+    const name= document.getElementById('card-name').value;
+    if(num.length<16){ showToast('Enter valid 16-digit card number',''); return; }
+    if(!exp.includes('/')){ showToast('Enter valid expiry date',''); return; }
+    if(cvv.length<3){ showToast('Enter valid CVV',''); return; }
+    if(!name.trim()){ showToast('Enter cardholder name',''); return; }
+  }
+  if(activeTab==='upi'){
+    const upiId = document.getElementById('upi-id').value.trim();
+    const selApp = document.querySelector('.upi-app.sel');
+    if(!selApp && !upiId){ showToast('Select a UPI app or enter UPI ID',''); return; }
+    if(upiId && !upiId.includes('@')){ showToast('Enter valid UPI ID (e.g. name@upi)',''); return; }
+  }
+
+  // Show processing
+  document.getElementById('payment-form-section').style.display='none';
+  document.getElementById('payment-processing').style.display='block';
+
+  // Simulate processing delay
+  setTimeout(()=>{
+    document.getElementById('payment-processing').style.display='none';
+    document.getElementById('payment-success').style.display='block';
+
+    const txnId = 'TXN'+Date.now().toString().slice(-10);
+    document.getElementById('txn-id').textContent = txnId;
+
+    if(paymentContext==='booking'){
+      // Complete the booking
+      const pnr = Math.floor(1000000000+Math.random()*9000000000).toString();
+      document.getElementById('final-pnr-num').textContent = pnr;
+      document.getElementById('pnr-display-final').style.display='block';
+      document.getElementById('pay-success-title').textContent='Booking Confirmed! 🎉';
+      document.getElementById('pay-success-sub').textContent='Ticket booked. SMS & Email confirmation sent.';
+      document.getElementById('pay-done-btn').textContent='View My Bookings';
+      document.getElementById('pay-done-btn').onclick=function(){ closePaymentModal(); closeModal(); showPage('bookings'); };
+      // Add to bookings array
+      const price = selectedTrain?.price||1848;
+      bookings.unshift({pnr,name:selectedTrain?.name||'Train',from:selectedTrain?.from||'—',to:selectedTrain?.to||'—',date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),class:'3A',coach:'B2',seat:'32',passengers:passengerCount,amount:price*passengerCount,status:'confirmed'});
+      // Also update booking-modal success screen if open
+      if(document.getElementById('success-pnr')) document.getElementById('success-pnr').textContent=pnr;
+    } else {
+      // Food order complete
+      document.getElementById('pnr-display-final').style.display='none';
+      document.getElementById('pay-success-title').textContent='Order Placed! 🍛';
+      document.getElementById('pay-success-sub').textContent='Your meal will be delivered to your seat at the next station.';
+      document.getElementById('pay-done-btn').textContent='Back to Menu';
+      document.getElementById('pay-done-btn').onclick=function(){ closePaymentModal(); };
+      // Clear cart
+      cart=[];
+      renderCart();
+      document.getElementById('order-success').classList.add('show');
+      document.getElementById('cart-items').style.display='none';
+      document.getElementById('cart-total-section').style.display='none';
+      document.getElementById('cart-empty').style.display='none';
+    }
+    showToast('Payment of ₹'+currentPayTotal.toLocaleString('en-IN')+' successful! 🎉','success');
+  }, 2200);
+}
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(type==='success'?' success':'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+// Set default dates
+document.addEventListener('DOMContentLoaded',()=>{
+  const today = new Date().toISOString().split('T')[0];
+  const inputs = ['home-date','b-date','track-date'];
+  inputs.forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+});
+</script>
+</body>
+</html>
